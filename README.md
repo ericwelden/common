@@ -25,6 +25,9 @@ Then open [http://localhost:3000](http://localhost:3000).
   edit this to move the map or add markers
 - `src/data/mapStyle.js` — the entire visual style of the map (colors, layers,
   what's shown or hidden); edit this to restyle it
+- `public/fonts/` — self-hosted glyph files for map labels: [Inter](https://rsms.me/inter/)
+  (SIL Open Font License, included), converted to MapLibre's PBF format with
+  [`font-maker-cli`](https://github.com/sakitam-gis/font-maker)
 
 ## Roadmap
 

@@ -13,16 +13,20 @@ const palette = {
   background: "#ffffff",
   water: "#f0f0f0",
   road: "#ececec",
-  buildingFill: "#ffffff",
+  buildingFill: "#f5f5f5",
   buildingOutline: "#dcdcdc",
   // Darkest thing on the map on purpose: addresses are the one label the map
-  // keeps, so they meet WCAG AA contrast (4.5:1) on white.
-  housenumber: "#767676",
+  // keeps, so they meet WCAG AA contrast (4.5:1) against the building fill
+  // (the lightest surface they can sit on).
+  housenumber: "#6b6b6b",
 };
 
 export const mapStyle = {
   version: 8,
-  glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+  // Self-hosted glyph files (public/fonts) — OpenFreeMap's glyph server has no
+  // Inter, so its ranges were pre-rendered with genfontgl and shipped with the
+  // app. To add another font/weight, generate its folder the same way.
+  glyphs: "/fonts/{fontstack}/{range}.pbf",
   sources: {
     openfreemap: {
       type: "vector",
@@ -95,7 +99,7 @@ export const mapStyle = {
       minzoom: 16,
       layout: {
         "text-field": ["get", "housenumber"],
-        "text-font": ["Noto Sans Regular"],
+        "text-font": ["Inter Regular"],
         "text-size": ["interpolate", ["linear"], ["zoom"], 16, 8, 19, 13],
       },
       paint: { "text-color": palette.housenumber },
