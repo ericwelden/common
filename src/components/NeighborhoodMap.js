@@ -43,6 +43,16 @@ export default function NeighborhoodMap() {
       new maplibregl.NavigationControl({ showCompass: false }),
       "top-left"
     );
+    // MapLibre's compact attribution starts pre-expanded and only collapses
+    // to the small icon after the map's first drag. The expanded class gets
+    // added asynchronously once the source's attribution text loads (well
+    // after this line runs), so wait for "load" rather than collapsing here.
+    map.once("load", () => {
+      map
+        .getContainer()
+        .querySelector(".maplibregl-ctrl-attrib")
+        ?.classList.remove("maplibregl-compact-show");
+    });
 
     for (const place of PLACES) {
       const el = document.createElement("div");
