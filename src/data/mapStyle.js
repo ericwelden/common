@@ -3,16 +3,21 @@
 // entirely by the layer list below — nothing renders unless a layer asks for it.
 //
 // To customize: change any color/width here, delete a layer to remove that
-// feature class, or add layers for things currently hidden (street names,
-// parks, transit, shops...). Layer reference: https://maplibre.org/maplibre-style-spec/
+// feature class, or add layers for things currently hidden (place names,
+// transit, shops/POIs...). Layer reference: https://maplibre.org/maplibre-style-spec/
 // Available source-layers (OpenMapTiles schema): water, waterway, landcover,
 // landuse, park, boundary, aeroway, transportation, building, water_name,
 // transportation_name, place, housenumber, poi, aerodrome_label.
 
 const palette = {
   background: "#ffffff",
-  water: "#f0f0f0",
+  water: "#d7e9f7",
+  // A creek is a 1-3px line, not a filled area — the pale water fill would
+  // nearly vanish at that width, so its line gets a touch more saturation.
+  waterLine: "#a9cbe8",
+  park: "#dcefdc",
   road: "#ececec",
+  roadLabel: "#a8a8a8",
   buildingFill: "#f5f5f5",
   buildingOutline: "#dcdcdc",
   // Darkest thing on the map on purpose: addresses are the one label the map
@@ -40,12 +45,40 @@ export const mapStyle = {
       paint: { "background-color": palette.background },
     },
     {
-      // Peralta Creek and any other water, barely-there grey. Delete to hide.
+      // Parks, gardens, nature reserves. "landcover" catches informal green
+      // space (grass/wood) that isn't tagged as a formal park boundary.
+      id: "landcover-green",
+      type: "fill",
+      source: "openfreemap",
+      "source-layer": "landcover",
+      filter: ["in", ["get", "class"], ["literal", ["wood", "grass"]]],
+      paint: { "fill-color": palette.park },
+    },
+    {
+      id: "parks",
+      type: "fill",
+      source: "openfreemap",
+      "source-layer": "park",
+      paint: { "fill-color": palette.park },
+    },
+    {
+      // Peralta Creek and any other water. Delete to hide.
       id: "water",
       type: "fill",
       source: "openfreemap",
       "source-layer": "water",
       paint: { "fill-color": palette.water },
+    },
+    {
+      // Creeks and streams too small to be water polygons.
+      id: "waterway",
+      type: "line",
+      source: "openfreemap",
+      "source-layer": "waterway",
+      paint: {
+        "line-color": palette.waterLine,
+        "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1, 18, 3],
+      },
     },
     {
       id: "roads",
@@ -88,6 +121,28 @@ export const mapStyle = {
       paint: {
         "line-color": palette.buildingOutline,
         "line-width": ["interpolate", ["linear"], ["zoom"], 15, 0.3, 19, 1.4],
+      },
+    },
+    {
+      // Faint street names along the road lines. Excludes driveways/parking-lot
+      // service roads and paths, which would otherwise clutter a residential area.
+      id: "road-labels",
+      type: "symbol",
+      source: "openfreemap",
+      "source-layer": "transportation_name",
+      minzoom: 14,
+      filter: ["!", ["in", ["get", "class"], ["literal", ["service", "track", "path"]]]],
+      layout: {
+        "symbol-placement": "line",
+        "text-field": ["get", "name"],
+        "text-font": ["Inter Regular"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 14, 9, 18, 12],
+        "text-letter-spacing": 0.02,
+      },
+      paint: {
+        "text-color": palette.roadLabel,
+        "text-halo-color": palette.background,
+        "text-halo-width": 1.2,
       },
     },
     {
