@@ -29,7 +29,7 @@ export default function AboutCard() {
 
   return (
     <aside
-      className={`absolute inset-x-4 bottom-14 ${OVERLAY_Z} rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-80`}
+      className={`absolute inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] ${OVERLAY_Z} rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-80`}
     >
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-base font-semibold tracking-tight">

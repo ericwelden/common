@@ -110,3 +110,14 @@ body {
     display: block;
   }
 }
+
+/* BottomNav (src/components/BottomNav.js) shows below the `sm` width
+   breakpoint, but the hover-reveal rule above is gated on hover capability —
+   a desktop window resized narrower than `sm` still reports hover:hover, so
+   the map's attribution corner would otherwise sit underneath the opaque bar
+   and become unreachable. Nudge it above the bar in that width range. */
+@media (max-width: 639.98px) {
+  .maplibregl-ctrl-bottom-right {
+    bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}

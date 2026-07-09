@@ -1,30 +1,11 @@
 import MapLoader from "@/components/MapLoader";
 import AboutCard from "@/components/AboutCard";
-import MapAttribution from "@/components/MapAttribution";
 
-export default function Home() {
+export default function MapPage() {
   return (
-    <div className="flex h-dvh flex-col">
-      <header className="z-20 flex items-center justify-between gap-4 border-b border-zinc-100 bg-white px-5 py-3">
-        <div className="flex items-baseline gap-3">
-          <h1 className="text-lg font-semibold tracking-tight">
-            Common<span className="text-emerald-600">.</span>
-          </h1>
-          <p className="hidden text-sm text-zinc-500 sm:block">
-            A living map of the neighborhood
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <span className="rounded-full border border-emerald-600/20 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            Laurel · Oakland
-          </span>
-          <MapAttribution />
-        </div>
-      </header>
-      <main className="relative flex-1">
-        <MapLoader />
-        <AboutCard />
-      </main>
-    </div>
+    <main className="relative flex-1">
+      <MapLoader />
+      <AboutCard />
+    </main>
   );
 }
