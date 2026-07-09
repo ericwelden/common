@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Common",
-  description: "A map of your neighborhood — resources and services shared by neighbors.",
+  title: "Common — a map of the neighborhood",
+  description:
+    "A living map of the Laurel district in Oakland: explore the neighborhood, share resources, and offer services.",
 };
 
 export default function RootLayout({ children }) {
