@@ -1,5 +1,6 @@
 import MapLoader from "@/components/MapLoader";
 import AboutCard from "@/components/AboutCard";
+import MapAttribution from "@/components/MapAttribution";
 
 export default function Home() {
   return (
@@ -13,9 +14,12 @@ export default function Home() {
             A living map of the neighborhood
           </p>
         </div>
-        <span className="shrink-0 rounded-full border border-emerald-600/20 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-          Laurel · Oakland
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-full border border-emerald-600/20 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+            Laurel · Oakland
+          </span>
+          <MapAttribution />
+        </div>
       </header>
       <main className="relative flex-1">
         <MapLoader />

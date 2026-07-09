@@ -9,6 +9,12 @@
 // landuse, park, boundary, aeroway, transportation, building, water_name,
 // transportation_name, place, housenumber, poi, aerodrome_label.
 
+// Same required credit MapLibre's own control shows, minus the "OpenFreeMap"
+// link their terms say is optional — shared with MobileAttribution so the map
+// and the header credit never drift apart.
+export const ATTRIBUTION_HTML =
+  '<a href="https://www.openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>';
+
 const palette = {
   background: "#ffffff",
   water: "#d7e9f7",
@@ -36,11 +42,8 @@ export const mapStyle = {
     openfreemap: {
       type: "vector",
       url: "https://tiles.openfreemap.org/planet",
-      // Overrides the "OpenFreeMap © OpenMapTiles Data from OpenStreetMap"
-      // attribution OpenFreeMap's server sends by default. Their terms say
-      // the "OpenFreeMap" part is optional to display — OpenMapTiles and
-      // OpenStreetMap are the two that must stay.
-      attribution: "© OpenMapTiles Data from OpenStreetMap",
+      // Overrides the attribution OpenFreeMap's server sends by default.
+      attribution: ATTRIBUTION_HTML,
     },
   },
   layers: [

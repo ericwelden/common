@@ -92,3 +92,21 @@ body {
     opacity: 1;
   }
 }
+
+/* Touch devices can't hover, so the block above never reveals its icon there
+   — instead, hide the map's floating attribution entirely and show the
+   header's MapAttribution button (src/components/MapAttribution.js), which
+   keeps the same required credit off the map's limited screen space. */
+.mobile-attribution-trigger {
+  display: none;
+}
+
+@media (hover: none) {
+  .maplibregl-ctrl-bottom-right {
+    display: none;
+  }
+
+  .mobile-attribution-trigger {
+    display: block;
+  }
+}
