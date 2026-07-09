@@ -63,3 +63,32 @@ body {
   width: 2.25rem;
   height: 2.25rem;
 }
+
+/* Required attribution (OSM's license) stays reachable but out of the way:
+   on devices with real hover (mouse/trackpad), it's invisible until the
+   cursor reaches the map's last 5% bottom-right corner, then fades in.
+   Touch devices report no hover, so this block doesn't apply there — the
+   compact icon just stays visible, since a hover-only reveal would be
+   unreachable on a touchscreen. */
+@media (hover: hover) {
+  .maplibregl-ctrl-bottom-right {
+    width: 5%;
+    height: 5%;
+    min-width: 44px;
+    min-height: 44px;
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib.maplibregl-compact {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .maplibregl-ctrl-bottom-right:hover .maplibregl-ctrl-attrib.maplibregl-compact,
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib.maplibregl-compact:focus-within {
+    opacity: 1;
+  }
+}

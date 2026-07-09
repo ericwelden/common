@@ -36,6 +36,11 @@ export const mapStyle = {
     openfreemap: {
       type: "vector",
       url: "https://tiles.openfreemap.org/planet",
+      // Overrides the "OpenFreeMap © OpenMapTiles Data from OpenStreetMap"
+      // attribution OpenFreeMap's server sends by default. Their terms say
+      // the "OpenFreeMap" part is optional to display — OpenMapTiles and
+      // OpenStreetMap are the two that must stay.
+      attribution: "© OpenMapTiles Data from OpenStreetMap",
     },
   },
   layers: [
