@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
 const geistSans = Geist({

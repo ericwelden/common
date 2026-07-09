@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+/* The app is deliberately light-only: the minimal white map is the design. */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -12,80 +14,52 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* Custom map pin (Leaflet divIcon). Its color comes from the text-emerald-600
-   utility on the icon element; the SVG uses fill="currentColor". */
+/* Custom map pin (MapLibre marker element). Its color comes from the
+   text-emerald-600 utility on the element; the SVG uses fill="currentColor". */
 .common-pin {
-  background: transparent;
-  border: none;
   filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.35));
+  cursor: pointer;
 }
 
-/* Leaflet popup styling to match the app chrome */
-.leaflet-popup-content-wrapper {
+/* MapLibre popup styling to match the app chrome */
+.maplibregl-popup-content {
   border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgb(0 0 0 / 0.15);
+  padding: 0.75rem 2.25rem 0.75rem 1rem;
+  box-shadow: 0 10px 25px rgb(0 0 0 / 0.12);
   font-family: inherit;
-}
-
-.leaflet-popup-content {
-  margin: 0.75rem 1rem;
   font-size: 0.875rem;
   line-height: 1.5;
 }
 
-/* Dark theme for the Leaflet chrome, using the zinc tokens the app chrome uses.
-   Leaflet prefixes some selectors with .leaflet-container, so overrides that
-   lose on specificity get the same prefix. */
-@media (prefers-color-scheme: dark) {
-  /* Backdrop behind not-yet-loaded tiles (leaflet.css defaults it to #ddd) */
-  .leaflet-container {
-    background: var(--color-zinc-900, #18181b);
-  }
+.maplibregl-popup-close-button {
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  font-size: 1rem;
+  line-height: 1;
+  color: #71717a;
+}
 
-  .leaflet-popup-content-wrapper,
-  .leaflet-popup-tip {
-    background: var(--color-zinc-900, #18181b);
-    color: var(--color-zinc-200, #e4e4e7);
-  }
+.maplibregl-popup-close-button:hover {
+  background: #f4f4f5;
+  color: #3f3f46;
+}
 
-  .leaflet-container a.leaflet-popup-close-button {
-    color: var(--color-zinc-400, #a1a1aa);
-  }
+/* Softer corners and shadow on the zoom control, with phone-sized buttons */
+.maplibregl-ctrl-group {
+  border-radius: 0.625rem;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
+}
 
-  .leaflet-bar a {
-    background: var(--color-zinc-900, #18181b);
-    color: var(--color-zinc-200, #e4e4e7);
-    border-bottom-color: var(--color-zinc-700, #3f3f46);
-  }
-
-  .leaflet-bar a:hover {
-    background: var(--color-zinc-800, #27272a);
-  }
-
-  .leaflet-container .leaflet-control-attribution {
-    background: color-mix(in srgb, var(--color-zinc-900, #18181b) 80%, transparent);
-    color: var(--color-zinc-400, #a1a1aa);
-  }
-
-  .leaflet-container .leaflet-control-attribution a {
-    color: var(--color-zinc-300, #d4d4d8);
-  }
-
-  /* Approximate dark map tiles by inverting the light OSM tiles */
-  .leaflet-tile {
-    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.65);
-  }
+.maplibregl-ctrl-group button {
+  width: 2.25rem;
+  height: 2.25rem;
 }

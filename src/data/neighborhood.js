@@ -3,7 +3,18 @@
 export const NEIGHBORHOOD_CENTER = {
   lat: 37.799,
   lng: -122.203,
-  zoom: 16,
+};
+
+// The initial camera and how far the map can wander. Bounds are
+// [west, south] / [east, north] — roughly a 1km box around the center.
+export const MAP_VIEW = {
+  zoom: 16.8,
+  minZoom: 15,
+  maxZoom: 19,
+  maxBounds: [
+    [-122.215, 37.79],
+    [-122.191, 37.808],
+  ],
 };
 
 // Sample points of interest. Replace with real neighborhood spots.
