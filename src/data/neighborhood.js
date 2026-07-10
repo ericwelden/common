@@ -1,4 +1,4 @@
-// Map center: Madeline Street area, Oakland Hills / Laurel district, Oakland CA 94619.
+// Map center: Madeline Street area, Dimond district, Oakland CA 94619.
 // Coordinates are intentionally rounded (~100m) so the exact address isn't in the public repo.
 export const NEIGHBORHOOD_CENTER = {
   lat: 37.799,

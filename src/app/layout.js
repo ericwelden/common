@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Common — a map of the neighborhood",
   description:
-    "A living map of the Laurel district in Oakland: explore the neighborhood, share resources, and offer services.",
+    "A living map of the Dimond district in Oakland: explore the neighborhood, share resources, and offer services.",
 };
 
 // viewport-fit=cover is required for env(safe-area-inset-bottom) below to
@@ -46,7 +46,7 @@ export default function RootLayout({ children }) {
           <HeaderNav />
           <div className="flex shrink-0 items-center gap-2">
             <span className="whitespace-nowrap rounded-full border border-emerald-600/20 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-              Laurel · Oakland
+              Dimond · Oakland
             </span>
             <MapAttribution />
           </div>
