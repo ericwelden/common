@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useAboutCard } from "./AboutCardContext";
 
 const FEATURES = [
   { label: "Map of the neighborhood", live: true },
@@ -8,24 +8,15 @@ const FEATURES = [
   { label: "Neighbor services", live: false },
 ];
 
-// MapLibre's controls and popups use small z-indexes (≤4), so z-10 keeps the
-// card and its reopen button above all map UI.
+// MapLibre's controls and popups use small z-indexes (≤4), so z-10 keeps
+// the card above all map UI. Reopening happens via the header logo
+// (src/components/LogoButton.js), not a trigger owned by this component.
 const OVERLAY_Z = "z-10";
 
 export default function AboutCard() {
-  const [open, setOpen] = useState(true);
+  const { open, setOpen } = useAboutCard();
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="About Common"
-        className={`absolute right-4 top-4 ${OVERLAY_Z} flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-sm font-semibold text-zinc-600 shadow-sm transition hover:text-zinc-900`}
-      >
-        i
-      </button>
-    );
-  }
+  if (!open) return null;
 
   return (
     <aside
