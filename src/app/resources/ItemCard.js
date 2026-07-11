@@ -16,11 +16,11 @@ export default function ItemCard({ item, photoUrl, status, isOwn }) {
           />
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <h2 className="text-sm font-semibold tracking-tight text-zinc-900">
+      <div className="flex flex-col gap-1 p-4">
+        <h2 className="truncate text-sm font-semibold tracking-tight text-zinc-900">
           {item.name}
         </h2>
-        <p className="text-xs text-zinc-500">
+        <p className="truncate text-xs text-zinc-500">
           {isOwn ? "posted by you" : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
         </p>
         <span

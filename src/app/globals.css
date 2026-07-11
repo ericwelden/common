@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
-/* The app is deliberately light-only: the minimal white map is the design. */
+/* The app is deliberately light-only: the minimal white map is the design.
+   A very light grey page background (not pure white) lets the white cards
+   on Resources/Recommendations/Profile read as distinct surfaces; the map
+   itself paints its own opaque white base layer over this regardless. */
 :root {
-  --background: #ffffff;
+  --background: #f4f4f5;
   --foreground: #171717;
   color-scheme: light;
 }
