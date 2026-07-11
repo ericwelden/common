@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ATTRIBUTION_HTML } from "@/data/mapStyle";
+import { Button } from "@/components/ui/button";
 
 // Touch devices have no hover, so the map's own hover-to-reveal attribution
 // (globals.css, gated on (hover: hover)) is unreachable there — this renders
@@ -13,21 +14,23 @@ export default function MapAttribution() {
 
   return (
     <div className="mobile-attribution-trigger relative">
-      <button
+      <Button
+        variant="outline"
+        size="icon-sm"
+        className="rounded-full"
         onClick={() => setOpen((v) => !v)}
         aria-label="Map data attribution"
         aria-expanded={open}
-        className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition hover:text-zinc-700"
       >
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.3" />
           <path d="M8 7.25v4M8 5.1v.01" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
         </svg>
-      </button>
+      </Button>
       {open && (
         <div
           role="note"
-          className="absolute right-0 top-9 z-30 w-max max-w-[calc(100vw-2.5rem)] rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600 shadow-lg [&_a]:underline [&_a]:decoration-zinc-300 [&_a]:underline-offset-2 [&_a]:hover:text-zinc-900"
+          className="absolute right-0 top-9 z-30 w-max max-w-[calc(100vw-2.5rem)] rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-lg [&_a]:underline [&_a]:decoration-muted-foreground [&_a]:underline-offset-2 [&_a]:hover:text-foreground"
           dangerouslySetInnerHTML={{ __html: ATTRIBUTION_HTML }}
         />
       )}

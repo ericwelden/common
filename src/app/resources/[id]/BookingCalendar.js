@@ -1,38 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { DayPicker } from "react-day-picker";
 import { format, subDays, addDays } from "date-fns";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
 import { reserveItem } from "./actions";
-
-// react-day-picker's classNames prop replaces the default (unstyled) class
-// per part, matching the "no default CSS bleeds through" approach already
-// used for MapLibre's controls in globals.css, just via props here instead
-// of a stylesheet override.
-const CALENDAR_CLASSNAMES = {
-  root: "text-sm",
-  months: "flex flex-col gap-4",
-  month_caption:
-    "flex items-center justify-center py-2 font-medium text-zinc-900",
-  nav: "flex items-center justify-between",
-  button_previous: "rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100",
-  button_next: "rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100",
-  month_grid: "w-full border-collapse",
-  weekdays: "flex",
-  weekday: "w-9 text-center text-xs font-medium text-zinc-400",
-  week: "flex",
-  day: "h-9 w-9 p-0 text-center",
-  day_button: "h-9 w-9 rounded-full text-sm text-zinc-700 hover:bg-zinc-100",
-  selected: "bg-emerald-600 text-white hover:bg-emerald-600",
-  range_start: "rounded-l-full bg-emerald-600 text-white hover:bg-emerald-600",
-  range_end: "rounded-r-full bg-emerald-600 text-white hover:bg-emerald-600",
-  range_middle: "rounded-none bg-emerald-50 text-emerald-900",
-  today: "font-semibold text-emerald-600",
-  disabled:
-    "cursor-not-allowed text-zinc-300 line-through hover:bg-transparent",
-  outside: "text-zinc-300",
-};
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
 
 export default function BookingCalendar({ itemId, reservations }) {
   const [range, setRange] = useState();
@@ -66,13 +39,13 @@ export default function BookingCalendar({ itemId, reservations }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <DayPicker
+      <Calendar
         mode="range"
         selected={range}
         onSelect={setRange}
         disabled={disabled}
         excludeDisabled
-        classNames={CALENDAR_CLASSNAMES}
+        className="rounded-lg border border-border"
       />
 
       <form action={action} className="flex flex-col gap-2">
@@ -93,14 +66,13 @@ export default function BookingCalendar({ itemId, reservations }) {
             range?.to ? format(addDays(range.to, 1), "yyyy-MM-dd") : ""
           }
         />
-        <button
+        <Button
           type="submit"
           disabled={pending || !range?.from || !range?.to}
-          className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
         >
           {pending ? "Reserving…" : "Reserve these dates"}
-        </button>
-        {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+        </Button>
+        {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
       </form>
     </div>
   );

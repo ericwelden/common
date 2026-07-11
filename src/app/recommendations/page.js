@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrls } from "@/lib/supabase/storage";
+import { Button } from "@/components/ui/button";
 import RecommendationsList from "./RecommendationsList";
 
 export default async function RecommendationsPage() {
@@ -36,12 +37,9 @@ export default async function RecommendationsPage() {
           <h1 className="text-lg font-semibold tracking-tight">
             Recommendations
           </h1>
-          <Link
-            href="/recommendations/new"
-            className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
-          >
+          <Button render={<Link href="/recommendations/new" />}>
             + Add a recommendation
-          </Link>
+          </Button>
         </div>
 
         <RecommendationsList

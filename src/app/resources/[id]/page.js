@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrl } from "@/lib/supabase/storage";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
 import Avatar from "@/components/Avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BookingCalendar from "./BookingCalendar";
 import CancelReservationButton from "./CancelReservationButton";
 
@@ -46,7 +47,7 @@ export default async function ItemDetailPage({ params }) {
     <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <div className="flex flex-col gap-4 sm:flex-row">
-          <div className="aspect-square w-full shrink-0 overflow-hidden rounded-2xl bg-zinc-100 sm:w-56">
+          <div className="aspect-square w-full shrink-0 overflow-hidden rounded-2xl bg-muted sm:w-56">
             {photoUrl && (
               // eslint-disable-next-line @next/next/no-img-element -- signed URL, not a static asset
               <img
@@ -57,19 +58,19 @@ export default async function ItemDetailPage({ params }) {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">
               {item.name}
             </h1>
             <div className="flex items-center gap-1.5">
               <Avatar photoUrl={posterPhotoUrl} />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 {isOwn
                   ? "posted by you"
                   : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
               </p>
             </div>
             {item.description && (
-              <p className="text-sm leading-6 text-zinc-600">
+              <p className="text-sm leading-6 text-muted-foreground">
                 {item.description}
               </p>
             )}
@@ -77,32 +78,34 @@ export default async function ItemDetailPage({ params }) {
         </div>
 
         {myReservations.length > 0 && (
-          <div className="flex flex-col gap-2 rounded-2xl border border-zinc-200 bg-white p-4">
-            <h2 className="text-sm font-semibold text-zinc-900">
-              Your upcoming reservations
-            </h2>
-            <ul className="flex flex-col gap-2">
-              {myReservations.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex items-center justify-between gap-3 text-sm text-zinc-600"
-                >
-                  <span>
-                    {format(parseISODate(r.start_date), "MMM d")} –{" "}
-                    {format(subDays(parseISODate(r.end_date), 1), "MMM d")}
-                  </span>
-                  <CancelReservationButton
-                    reservationId={r.id}
-                    itemId={item.id}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Your upcoming reservations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="flex flex-col gap-2">
+                {myReservations.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-center justify-between gap-3 text-sm text-muted-foreground"
+                  >
+                    <span>
+                      {format(parseISODate(r.start_date), "MMM d")} –{" "}
+                      {format(subDays(parseISODate(r.end_date), 1), "MMM d")}
+                    </span>
+                    <CancelReservationButton
+                      reservationId={r.id}
+                      itemId={item.id}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         )}
 
         <div className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold text-zinc-900">
+          <h2 className="text-sm font-semibold text-foreground">
             Reserve this item
           </h2>
           <BookingCalendar itemId={item.id} reservations={reservations ?? []} />

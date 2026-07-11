@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import ItemCard from "./ItemCard";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // Filters client-side rather than round-tripping to the server per
 // keystroke -- reasonable at neighborhood scale (dozens to low hundreds of
 // items, not thousands).
 export default function ResourcesList({ cards }) {
+  const availableOnlyId = useId();
   const [query, setQuery] = useState("");
   const [availableOnly, setAvailableOnly] = useState(false);
 
@@ -24,7 +28,7 @@ export default function ResourcesList({ cards }) {
 
   if (cards.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-zinc-500">
+      <p className="py-12 text-center text-sm text-muted-foreground">
         Nothing shared yet — be the first to add something.
       </p>
     );
@@ -33,22 +37,23 @@ export default function ResourcesList({ cards }) {
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input
+        <Input
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search items…"
-          className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:outline-none"
+          className="flex-1 bg-card"
         />
-        <label className="flex shrink-0 items-center gap-2 text-sm text-zinc-600">
-          <input
-            type="checkbox"
+        <div className="flex shrink-0 items-center gap-2">
+          <Checkbox
+            id={availableOnlyId}
             checked={availableOnly}
-            onChange={(event) => setAvailableOnly(event.target.checked)}
-            className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-600"
+            onCheckedChange={(checked) => setAvailableOnly(checked === true)}
           />
-          Available now only
-        </label>
+          <Label htmlFor={availableOnlyId} className="text-sm font-normal text-muted-foreground">
+            Available now only
+          </Label>
+        </div>
       </div>
 
       {filtered.length > 0 ? (
@@ -65,7 +70,7 @@ export default function ResourcesList({ cards }) {
           ))}
         </div>
       ) : (
-        <p className="py-12 text-center text-sm text-zinc-500">
+        <p className="py-12 text-center text-sm text-muted-foreground">
           No items match your search.
         </p>
       )}

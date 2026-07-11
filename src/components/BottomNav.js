@@ -77,7 +77,7 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 flex h-16 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 flex h-16 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
       {NAV_ITEMS.map(({ href, label }) => {
         const active = isActive(pathname, href);
@@ -88,7 +88,7 @@ export default function BottomNav() {
             aria-label={label}
             aria-current={active ? "page" : undefined}
             className={`flex flex-1 flex-col items-center justify-center gap-0.5 transition ${
-              active ? "font-semibold text-emerald-600" : "text-zinc-500"
+              active ? "font-semibold text-primary" : "text-muted-foreground"
             }`}
           >
             {ICONS[href]}

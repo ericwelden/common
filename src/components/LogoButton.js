@@ -17,7 +17,7 @@ export default function LogoButton() {
       aria-label="Common — go to the map and show the welcome info"
       className="text-lg font-semibold tracking-tight whitespace-nowrap"
     >
-      Common<span className="text-emerald-600">.</span>
+      Common<span className="text-primary">.</span>
     </Link>
   );
 }

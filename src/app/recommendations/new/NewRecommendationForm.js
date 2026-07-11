@@ -2,6 +2,10 @@
 
 import { useActionState } from "react";
 import { createRecommendation } from "./actions";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export default function NewRecommendationForm() {
   const [state, action, pending] = useActionState(
@@ -12,57 +16,36 @@ export default function NewRecommendationForm() {
   return (
     <form action={action} className="flex w-full max-w-sm flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="name" className="text-sm font-medium text-zinc-700">
-          Name
-        </label>
-        <input
-          id="name"
-          name="name"
-          required
-          placeholder="Dave's Plumbing"
-          className="rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:outline-none"
-        />
+        <Label htmlFor="name">Name</Label>
+        <Input id="name" name="name" required placeholder="Dave's Plumbing" />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="category"
-          className="text-sm font-medium text-zinc-700"
-        >
-          Category
-        </label>
-        <input
+        <Label htmlFor="category">Category</Label>
+        <Input
           id="category"
           name="category"
           required
           placeholder="Home services, food & drink, babysitting…"
-          className="rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:outline-none"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="note" className="text-sm font-medium text-zinc-700">
-          Why do you recommend it?
-        </label>
-        <textarea
+        <Label htmlFor="note">Why do you recommend it?</Label>
+        <Textarea
           id="note"
           name="note"
           rows={3}
           required
           placeholder="Called them for a leak, fixed same day and fair price."
-          className="resize-none rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:outline-none"
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "Posting…" : "Post recommendation"}
-      </button>
+      </Button>
 
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
     </form>
   );
 }

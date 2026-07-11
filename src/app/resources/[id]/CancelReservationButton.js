@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { cancelReservation } from "./actions";
+import { Button } from "@/components/ui/button";
 
 export default function CancelReservationButton({ reservationId, itemId }) {
   const [state, action, pending] = useActionState(
@@ -11,15 +12,11 @@ export default function CancelReservationButton({ reservationId, itemId }) {
 
   return (
     <form action={action} className="flex items-center gap-2">
-      <button
-        type="submit"
-        disabled={pending}
-        className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
-      >
+      <Button type="submit" variant="link" size="sm" disabled={pending} className="h-auto p-0 text-destructive">
         {pending ? "Canceling…" : "Cancel"}
-      </button>
+      </Button>
       {state?.error && (
-        <span className="text-xs text-red-600">{state.error}</span>
+        <span className="text-xs text-destructive">{state.error}</span>
       )}
     </form>
   );

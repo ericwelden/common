@@ -29,8 +29,8 @@ export default function HeaderNav() {
             aria-current={active ? "page" : undefined}
             className={`text-sm transition ${
               active
-                ? "font-semibold text-emerald-600"
-                : "text-zinc-500 hover:text-zinc-900"
+                ? "font-semibold text-primary"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {label}

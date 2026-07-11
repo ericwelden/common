@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrl } from "@/lib/supabase/storage";
 import SignInForm from "@/components/SignInForm";
+import { Button } from "@/components/ui/button";
 import ProfileForm from "./ProfileForm";
 import { signOut } from "./actions";
 
@@ -33,9 +34,9 @@ export default async function ProfilePage({ searchParams }) {
       {claims ? (
         <>
           <h1 className="text-lg font-semibold tracking-tight">Profile</h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-muted-foreground">
             Signed in as{" "}
-            <span className="font-medium text-zinc-900">{claims.email}</span>
+            <span className="font-medium text-foreground">{claims.email}</span>
           </p>
           <ProfileForm
             initialName={profile?.display_name}
@@ -44,28 +45,25 @@ export default async function ProfilePage({ searchParams }) {
             initialPhotoUrl={photoUrl}
           />
           <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
-            >
+            <Button type="submit" variant="outline">
               Sign out
-            </button>
+            </Button>
           </form>
         </>
       ) : (
         <>
           <h1 className="text-lg font-semibold tracking-tight">Sign in</h1>
-          <p className="max-w-sm text-sm leading-6 text-zinc-600">
+          <p className="max-w-sm text-sm leading-6 text-muted-foreground">
             Enter your email and we&apos;ll send you a link to sign in — no
             password needed.
           </p>
           {error === "link-expired" && (
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-destructive">
               That link expired or was already used — request a new one.
             </p>
           )}
           {error === "sign-in-required" && (
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-destructive">
               Sign in to view that page.
             </p>
           )}

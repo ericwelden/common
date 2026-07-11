@@ -2,6 +2,16 @@
 
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Filters client-side rather than round-tripping to the server per
 // keystroke -- reasonable at neighborhood scale. Categories are free text
@@ -34,7 +44,7 @@ export default function RecommendationsList({
 
   if (recommendations.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-zinc-500">
+      <p className="py-12 text-center text-sm text-muted-foreground">
         No recommendations yet — be the first to share one.
       </p>
     );
@@ -43,59 +53,57 @@ export default function RecommendationsList({
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input
+        <Input
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search recommendations…"
-          className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:outline-none"
+          className="flex-1 bg-card"
         />
-        <select
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-          className="shrink-0 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus:border-emerald-600 focus:outline-none"
-        >
-          <option value="all">All categories</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="w-full shrink-0 bg-card sm:w-48">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {filtered.length > 0 ? (
-        <ul className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           {filtered.map((rec) => (
-            <li
-              key={rec.id}
-              className="rounded-2xl border border-zinc-200 bg-white p-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <h2 className="text-sm font-semibold text-zinc-900">
-                  {rec.name}
-                </h2>
-                <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600">
+            <Card key={rec.id}>
+              <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+                <CardTitle>{rec.name}</CardTitle>
+                <Badge variant="secondary" className="shrink-0">
                   {rec.category}
-                </span>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-zinc-600">
-                {rec.note}
-              </p>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-zinc-500">
-                <span>—</span>
-                <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
-                <span>
-                  {rec.author_id === userId
-                    ? "posted by you"
-                    : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
-                </span>
-              </div>
-            </li>
+                </Badge>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2">
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {rec.note}
+                </p>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span>—</span>
+                  <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
+                  <span>
+                    {rec.author_id === userId
+                      ? "posted by you"
+                      : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p className="py-12 text-center text-sm text-zinc-500">
+        <p className="py-12 text-center text-sm text-muted-foreground">
           No recommendations match your search.
         </p>
       )}

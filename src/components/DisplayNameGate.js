@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { Button } from "@/components/ui/button";
 
 // Shared by every "post something" page (resources/new, recommendations/new,
 // and future ones) so the rule -- and its enforcement -- lives in one place.
@@ -23,13 +24,10 @@ export default async function DisplayNameGate({ nudgeText, children }) {
       <h1 className="text-lg font-semibold tracking-tight">
         Add your name first
       </h1>
-      <p className="max-w-sm text-sm leading-6 text-zinc-600">{nudgeText}</p>
-      <Link
-        href="/profile"
-        className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
-      >
-        Set your name
-      </Link>
+      <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+        {nudgeText}
+      </p>
+      <Button render={<Link href="/profile" />}>Set your name</Button>
     </main>
   );
 }

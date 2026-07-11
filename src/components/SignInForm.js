@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // No emailRedirectTo here — the redirect target is baked into the Supabase
 // email template itself (see src/app/auth/confirm/route.js), since the
@@ -22,8 +24,8 @@ export default function SignInForm() {
 
   if (status === "sent") {
     return (
-      <p className="max-w-sm text-sm leading-6 text-zinc-600">
-        Check <strong className="text-zinc-900">{email}</strong> for a
+      <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+        Check <strong className="text-foreground">{email}</strong> for a
         sign-in link.
       </p>
     );
@@ -34,24 +36,19 @@ export default function SignInForm() {
       onSubmit={handleSubmit}
       className="flex w-full max-w-xs flex-col gap-3"
     >
-      <input
+      <Input
         type="email"
         required
         autoComplete="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="you@example.com"
-        className="rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:outline-none"
       />
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={status === "sending"}>
         {status === "sending" ? "Sending…" : "Send sign-in link"}
-      </button>
+      </Button>
       {status === "error" && (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-destructive">
           Something went wrong — try again.
         </p>
       )}
