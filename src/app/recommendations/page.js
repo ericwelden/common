@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedPhotoUrls } from "@/lib/supabase/storage";
 import RecommendationsList from "./RecommendationsList";
 
 export default async function RecommendationsPage() {
@@ -12,8 +13,21 @@ export default async function RecommendationsPage() {
 
   const { data: recommendations } = await supabase
     .from("recommendations")
-    .select("*, profiles(display_name)")
+    .select("*, profiles(display_name, photo_path)")
     .order("created_at", { ascending: false });
+
+  const posterPhotoPaths = [
+    ...new Set(
+      (recommendations ?? [])
+        .map((rec) => rec.profiles?.photo_path)
+        .filter(Boolean)
+    ),
+  ];
+  const posterPhotoUrls = await getSignedPhotoUrls(
+    supabase,
+    posterPhotoPaths,
+    "profile-photos"
+  );
 
   return (
     <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
@@ -32,6 +46,7 @@ export default async function RecommendationsPage() {
 
         <RecommendationsList
           recommendations={recommendations ?? []}
+          posterPhotoUrls={Object.fromEntries(posterPhotoUrls)}
           userId={userId}
         />
       </div>

@@ -36,7 +36,7 @@ export default async function ResourcesPage() {
   const [{ data: items }, { data: reservations }] = await Promise.all([
     supabase
       .from("items")
-      .select("*, profiles(display_name)")
+      .select("*, profiles(display_name, photo_path)")
       .order("created_at", { ascending: false }),
     supabase
       .from("reservations")
@@ -49,14 +49,23 @@ export default async function ResourcesPage() {
     return map;
   }, {});
 
-  const photoUrls = await getSignedPhotoUrls(
-    supabase,
-    (items ?? []).map((item) => item.photo_path)
-  );
+  const posterPhotoPaths = [
+    ...new Set(
+      (items ?? [])
+        .map((item) => item.profiles?.photo_path)
+        .filter(Boolean)
+    ),
+  ];
+
+  const [photoUrls, posterPhotoUrls] = await Promise.all([
+    getSignedPhotoUrls(supabase, (items ?? []).map((item) => item.photo_path)),
+    getSignedPhotoUrls(supabase, posterPhotoPaths, "profile-photos"),
+  ]);
 
   const cards = (items ?? []).map((item) => ({
     item,
     photoUrl: photoUrls.get(item.photo_path),
+    posterPhotoUrl: posterPhotoUrls.get(item.profiles?.photo_path),
     status: statusFor(item.id, reservationsByItem, todayISO),
     isOwn: item.owner_id === userId,
   }));

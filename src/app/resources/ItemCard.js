@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Avatar from "@/components/Avatar";
 
-export default function ItemCard({ item, photoUrl, status, isOwn }) {
+export default function ItemCard({ item, photoUrl, posterPhotoUrl, status, isOwn }) {
   return (
     <Link
       href={`/resources/${item.id}`}
@@ -20,9 +21,12 @@ export default function ItemCard({ item, photoUrl, status, isOwn }) {
         <h2 className="truncate text-sm font-semibold tracking-tight text-zinc-900">
           {item.name}
         </h2>
-        <p className="truncate text-xs text-zinc-500">
-          {isOwn ? "posted by you" : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <Avatar photoUrl={posterPhotoUrl} />
+          <p className="truncate text-xs text-zinc-500">
+            {isOwn ? "posted by you" : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
+          </p>
+        </div>
         <span
           className={`mt-2 w-fit rounded-full px-2.5 py-1 text-xs font-medium ${
             status.available

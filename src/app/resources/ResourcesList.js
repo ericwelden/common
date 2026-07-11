@@ -53,11 +53,12 @@ export default function ResourcesList({ cards }) {
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {filtered.map(({ item, photoUrl, status, isOwn }) => (
+          {filtered.map(({ item, photoUrl, posterPhotoUrl, status, isOwn }) => (
             <ItemCard
               key={item.id}
               item={item}
               photoUrl={photoUrl}
+              posterPhotoUrl={posterPhotoUrl}
               status={status}
               isOwn={isOwn}
             />

@@ -1,12 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Avatar from "@/components/Avatar";
 
 // Filters client-side rather than round-tripping to the server per
 // keystroke -- reasonable at neighborhood scale. Categories are free text
 // (no fixed taxonomy), so the filter dropdown is built from whatever
 // categories neighbors have actually used so far, not a hardcoded list.
-export default function RecommendationsList({ recommendations, userId }) {
+export default function RecommendationsList({
+  recommendations,
+  posterPhotoUrls,
+  userId,
+}) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
 
@@ -77,12 +82,15 @@ export default function RecommendationsList({ recommendations, userId }) {
               <p className="mt-2 text-sm leading-6 text-zinc-600">
                 {rec.note}
               </p>
-              <p className="mt-2 text-xs text-zinc-500">
-                —{" "}
-                {rec.author_id === userId
-                  ? "posted by you"
-                  : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
-              </p>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-zinc-500">
+                <span>—</span>
+                <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
+                <span>
+                  {rec.author_id === userId
+                    ? "posted by you"
+                    : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
+                </span>
+              </div>
             </li>
           ))}
         </ul>

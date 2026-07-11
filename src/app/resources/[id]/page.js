@@ -3,6 +3,7 @@ import { format, subDays } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrl } from "@/lib/supabase/storage";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
+import Avatar from "@/components/Avatar";
 import BookingCalendar from "./BookingCalendar";
 import CancelReservationButton from "./CancelReservationButton";
 
@@ -17,7 +18,7 @@ export default async function ItemDetailPage({ params }) {
 
   const { data: item } = await supabase
     .from("items")
-    .select("*, profiles(display_name)")
+    .select("*, profiles(display_name, photo_path)")
     .eq("id", id)
     .maybeSingle();
 
@@ -30,7 +31,12 @@ export default async function ItemDetailPage({ params }) {
     .gte("end_date", todayISO)
     .order("start_date", { ascending: true });
 
-  const photoUrl = await getSignedPhotoUrl(supabase, item.photo_path);
+  const [photoUrl, posterPhotoUrl] = await Promise.all([
+    getSignedPhotoUrl(supabase, item.photo_path),
+    item.profiles?.photo_path
+      ? getSignedPhotoUrl(supabase, item.profiles.photo_path, "profile-photos")
+      : null,
+  ]);
   const isOwn = item.owner_id === userId;
   const myReservations = (reservations ?? []).filter(
     (r) => r.reserver_id === userId
@@ -54,11 +60,14 @@ export default async function ItemDetailPage({ params }) {
             <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
               {item.name}
             </h1>
-            <p className="text-xs text-zinc-500">
-              {isOwn
-                ? "posted by you"
-                : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
-            </p>
+            <div className="flex items-center gap-1.5">
+              <Avatar photoUrl={posterPhotoUrl} />
+              <p className="text-xs text-zinc-500">
+                {isOwn
+                  ? "posted by you"
+                  : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
+              </p>
+            </div>
             {item.description && (
               <p className="text-sm leading-6 text-zinc-600">
                 {item.description}
