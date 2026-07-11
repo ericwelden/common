@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrls } from "@/lib/supabase/storage";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
-import ItemCard from "./ItemCard";
+import ResourcesList from "./ResourcesList";
 
 // "Currently out" only reflects a reservation covering *today* -- an item
 // with reservations entirely in the future still reads as "Available now"
@@ -54,6 +54,13 @@ export default async function ResourcesPage() {
     (items ?? []).map((item) => item.photo_path)
   );
 
+  const cards = (items ?? []).map((item) => ({
+    item,
+    photoUrl: photoUrls.get(item.photo_path),
+    status: statusFor(item.id, reservationsByItem, todayISO),
+    isOwn: item.owner_id === userId,
+  }));
+
   return (
     <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -67,23 +74,7 @@ export default async function ResourcesPage() {
           </Link>
         </div>
 
-        {items && items.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {items.map((item) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                photoUrl={photoUrls.get(item.photo_path)}
-                status={statusFor(item.id, reservationsByItem, todayISO)}
-                isOwn={item.owner_id === userId}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="py-12 text-center text-sm text-zinc-500">
-            Nothing shared yet — be the first to add something.
-          </p>
-        )}
+        <ResourcesList cards={cards} />
       </div>
     </main>
   );
