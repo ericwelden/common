@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import SignInForm from "@/components/SignInForm";
+import DisplayNameForm from "./DisplayNameForm";
 import { signOut } from "./actions";
 
 export default async function ProfilePage({ searchParams }) {
@@ -7,6 +8,16 @@ export default async function ProfilePage({ searchParams }) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
+
+  let displayName = null;
+  if (claims) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", claims.sub)
+      .maybeSingle();
+    displayName = profile?.display_name ?? null;
+  }
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-[calc(4rem+env(safe-area-inset-bottom))] text-center sm:pb-0">
@@ -17,6 +28,7 @@ export default async function ProfilePage({ searchParams }) {
             Signed in as{" "}
             <span className="font-medium text-zinc-900">{claims.email}</span>
           </p>
+          <DisplayNameForm initialName={displayName} />
           <form action={signOut}>
             <button
               type="submit"
@@ -36,6 +48,11 @@ export default async function ProfilePage({ searchParams }) {
           {error === "link-expired" && (
             <p className="text-sm text-red-600">
               That link expired or was already used — request a new one.
+            </p>
+          )}
+          {error === "sign-in-required" && (
+            <p className="text-sm text-red-600">
+              Sign in to view that page.
             </p>
           )}
           <SignInForm />

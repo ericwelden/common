@@ -32,7 +32,37 @@ export async function proxy(request) {
     }
   );
 
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+
+  // Optimistic, cookie-derived check only — the real security boundary is
+  // Postgres RLS on the resources/recommendations tables (`to authenticated`
+  // policies), not this redirect. This just avoids flashing protected page
+  // content at signed-out visitors before they bounce.
+  //
+  // GET-only: Server Actions on these routes (reserveItem, createItem, etc.)
+  // POST back to the same pathname, and each already has its own
+  // getClaims()-based redirect. Gating those POSTs here too would mean a
+  // stale-session form submission hits a raw 307 (which preserves method
+  // and body by default) instead of the action's own redirect() call, which
+  // Next.js's client-side action runner is specifically built to turn into
+  // a clean navigation.
+  const pathname = request.nextUrl.pathname;
+  const requiresAuth = ["/resources", "/recommendations"].some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
+
+  if (requiresAuth && !data?.claims && request.method === "GET") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/profile";
+    url.searchParams.set("error", "sign-in-required");
+    const redirectResponse = NextResponse.redirect(url);
+    // Carry over any session cookies getClaims() just refreshed, so a
+    // mid-refresh session isn't dropped by the redirect.
+    for (const cookie of response.cookies.getAll()) {
+      redirectResponse.cookies.set(cookie);
+    }
+    return redirectResponse;
+  }
 
   return response;
 }
