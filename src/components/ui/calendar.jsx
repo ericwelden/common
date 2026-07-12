@@ -89,17 +89,26 @@ function Calendar({
             : "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
           defaultClassNames.day
         ),
+        // No bg-muted/rounding on the cell itself anymore -- the day button
+        // is a full circle now (see CalendarDayButton below), and a
+        // whole-cell grey background with only a small corner radius left
+        // grey square corners poking out past the circle's curve on the
+        // outer edge. The after: bridge (already scoped to just the inner
+        // half, facing range_middle) is what actually needs to survive here.
         range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
           defaultClassNames.range_start
         ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
           defaultClassNames.range_end
         ),
+        // Lighter tint of the brand coral (bg-primary/10), not grey -- same
+        // "light fill + solid-color text" pattern already used for the
+        // destructive Button variant elsewhere in this app.
         today: cn(
-          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
+          "rounded-(--cell-radius) bg-primary/10 text-primary data-[selected=true]:rounded-none",
           defaultClassNames.today
         ),
         outside: cn(
