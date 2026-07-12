@@ -25,7 +25,11 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  /* Warm coral accent (Airbnb-inspired, not a literal copy of their Rausch
+     oklch(~0.63 0.22 18)) -- the one deliberate splash of color in an
+     otherwise achromatic palette. Everything else (secondary/muted/accent/
+     border) stays neutral gray on purpose; this is an accent, not a repaint. */
+  --primary: oklch(0.64 0.19 23);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -69,10 +73,17 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Airbnb's real card-elevation recipe: a hairline + two soft, wide-spread
+     layers instead of one hard shadow. Generates a `shadow-elevated` utility
+     (Tailwind v4 auto-derives one from any --shadow-* theme var) used for
+     hover-lift on photo cards and as the resting elevation on text-only
+     cards/popovers -- one shadow language instead of several one-off values. */
+  --shadow-elevated: 0 0 0 1px rgba(0, 0, 0, 0.02), 0 2px 6px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Custom map pin (MapLibre marker element). Its color comes from the
-   text-emerald-600 utility on the element; the SVG uses fill="currentColor". */
+   text-primary utility on the element; the SVG uses fill="currentColor". */
 .common-pin {
   filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.35));
   cursor: pointer;
@@ -82,7 +93,7 @@
 .maplibregl-popup-content {
   border-radius: 0.75rem;
   padding: 0.75rem 2.25rem 0.75rem 1rem;
-  box-shadow: 0 10px 25px rgb(0 0 0 / 0.12);
+  box-shadow: var(--shadow-elevated);
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.5;

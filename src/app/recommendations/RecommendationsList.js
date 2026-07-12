@@ -65,7 +65,7 @@ export default function RecommendationsList({
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search recommendations…"
-                className="sm:w-56"
+                className="rounded-full sm:w-56"
               />
               <Select
                 value={category}
@@ -103,7 +103,11 @@ export default function RecommendationsList({
         <ul className="flex flex-col gap-3">
           {filtered.map((rec) => (
             <li key={rec.id}>
-              <Card>
+              {/* shadow-elevated at rest (not just on hover) -- unlike the
+                  photo cards on /resources, these have no photo to carry
+                  visual weight, so they keep the hairline ring plus a resting
+                  shadow, matching Airbnb's own text-heavy card tokens. */}
+              <Card className="shadow-elevated">
                 {/* flex, not just flex-row -- CardHeader's base className is
                     `grid`, and flex-row alone (no `flex`) doesn't switch that
                     off, so the badge silently dropped to its own row below
@@ -113,7 +117,7 @@ export default function RecommendationsList({
                   {/* A real heading, not shadcn's CardTitle -- CardTitle
                       renders a plain <div>, which would drop every
                       recommendation's name from heading navigation. */}
-                  <h2 className="font-heading text-base leading-snug font-medium">
+                  <h2 className="font-heading text-base leading-snug font-semibold">
                     {rec.name}
                   </h2>
                   <Badge variant="secondary" className="shrink-0">

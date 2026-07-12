@@ -17,7 +17,6 @@ export default function MapAttribution() {
       <Button
         variant="outline"
         size="icon-sm"
-        className="rounded-full"
         onClick={() => setOpen((v) => !v)}
         aria-label="Map data attribution"
         aria-expanded={open}
@@ -30,7 +29,7 @@ export default function MapAttribution() {
       {open && (
         <div
           role="note"
-          className="absolute right-0 top-9 z-30 w-max max-w-[calc(100vw-2.5rem)] rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-lg [&_a]:underline [&_a]:decoration-muted-foreground [&_a]:underline-offset-2 [&_a]:hover:text-foreground"
+          className="absolute right-0 top-9 z-30 w-max max-w-[calc(100vw-2.5rem)] rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-elevated [&_a]:underline [&_a]:decoration-muted-foreground [&_a]:underline-offset-2 [&_a]:hover:text-foreground"
           dangerouslySetInnerHTML={{ __html: ATTRIBUTION_HTML }}
         />
       )}

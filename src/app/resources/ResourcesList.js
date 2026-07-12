@@ -59,7 +59,7 @@ export default function ResourcesList({ cards }) {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search items…"
-                className="sm:w-56"
+                className="rounded-full sm:w-56"
               />
               <Select
                 value={availability}

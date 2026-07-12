@@ -52,8 +52,9 @@ function sweepingPopupContent(props) {
   return content;
 }
 
-// text-emerald-600 sets the element's color; the SVG's fill="currentColor"
-// picks it up, so the pin tracks the same accent token as the rest of the chrome.
+// text-primary sets the element's color; the SVG's fill="currentColor" picks
+// it up, so the pin automatically tracks the app's accent token instead of
+// being a second, disconnected color decision.
 const PIN_SIZE = 34;
 const PIN_SVG = `<svg width="${PIN_SIZE}" height="${PIN_SIZE}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor" stroke="#fff" stroke-width="1.5"/>
@@ -124,7 +125,10 @@ export default function NeighborhoodMap() {
             "line-cap": "round",
           },
           paint: {
-            "line-color": "#3b82f6",
+            // Matches the app's --primary token (oklch(0.64 0.19 23)) --
+            // MapLibre's paint spec needs a literal color, not a CSS var, so
+            // this is the pre-computed hex equivalent, kept in sync by hand.
+            "line-color": "#E94F52",
             "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1.5, 18, 4],
             "line-offset": 2,
           },
@@ -143,7 +147,7 @@ export default function NeighborhoodMap() {
             visibility: showSweepingRef.current ? "visible" : "none",
             "line-cap": "round",
           },
-          paint: { "line-color": "#3b82f6", "line-opacity": 0, "line-width": 20, "line-offset": 2 },
+          paint: { "line-color": "#E94F52", "line-opacity": 0, "line-width": 20, "line-offset": 2 },
         },
         "buildings"
       );
@@ -183,7 +187,7 @@ export default function NeighborhoodMap() {
 
     for (const place of PLACES) {
       const el = document.createElement("div");
-      el.className = "common-pin text-emerald-600";
+      el.className = "common-pin text-primary";
       el.innerHTML = PIN_SVG;
       // MapLibre makes the element a focusable Enter/Space popup toggle, so it
       // must announce as a button, with its expanded state kept in sync.

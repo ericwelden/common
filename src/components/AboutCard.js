@@ -23,7 +23,7 @@ export default function AboutCard() {
 
   return (
     <Card
-      className={`absolute inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] ${OVERLAY_Z} shadow-sm sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-80`}
+      className={`absolute inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] ${OVERLAY_Z} shadow-elevated sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-80`}
     >
       {/* CardHeader's base className is `grid` (single implicit column
           unless it has a CardAction child) -- flex-row alone only sets
@@ -34,7 +34,7 @@ export default function AboutCard() {
         {/* A real heading, not shadcn's CardTitle -- CardTitle renders a
             plain <div>, which would drop this from heading/landmark
             navigation for screen reader users. */}
-        <h2 className="font-heading text-base leading-snug font-medium">
+        <h2 className="font-heading text-base leading-snug font-semibold">
           Welcome to Common
         </h2>
         <Button
