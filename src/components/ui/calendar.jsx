@@ -106,13 +106,31 @@ function Calendar({
         // the button's z-10) so the circle still visually wins where they
         // overlap. Nothing is painted on the *outer* half (before the
         // range's start / after its end), so no grey shows there.
+        //
+        // has-data-[selected-single=true]:after:hidden matters for a real
+        // bug: react-day-picker sets BOTH range_start AND range_end true on
+        // a from-only click (the first day picked, before a range has a
+        // second end -- CalendarDayButton already treats that combination as
+        // data-selected-single). Both this range_start rule and the
+        // range_end rule below would otherwise land on that same single cell
+        // at once, setting after:right-0 *and* after:left-0 on its one
+        // shared ::after together -- the pseudo-element ends up pinned to
+        // both edges regardless of the w-1/2 width, spanning the full cell
+        // and poking grey out on both sides of the circle. Hiding it
+        // whenever the cell's own button reports "single" avoids that.
+        // (has-data-*, not group-has-data-*/day -- group-has-* targets a
+        // *descendant* of the group, but this class is applied directly to
+        // the cell that already carries group/day, so plain has-* -- which
+        // runs :has() against the element it's on -- is the one that means
+        // "this cell has a selected-single descendant", matching the same
+        // has-data-[...] pattern already used in card.jsx.)
         range_start: cn(
-          "relative isolate z-0 after:absolute after:inset-y-0 after:right-0 after:w-1/2 after:bg-muted",
+          "relative isolate z-0 has-data-[selected-single=true]:after:hidden after:absolute after:inset-y-0 after:right-0 after:w-1/2 after:bg-muted",
           defaultClassNames.range_start
         ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn(
-          "relative isolate z-0 after:absolute after:inset-y-0 after:left-0 after:w-1/2 after:bg-muted",
+          "relative isolate z-0 has-data-[selected-single=true]:after:hidden after:absolute after:inset-y-0 after:left-0 after:w-1/2 after:bg-muted",
           defaultClassNames.range_end
         ),
         // Lighter tint of the brand coral (bg-primary/10), not grey -- same
@@ -209,7 +227,15 @@ function CalendarDayButton({
         // -- the range_start/range_end cell classes above paint the grey
         // fill that meets the circle's edge, so there's no need to flatten
         // any side of the button itself to avoid a gap.
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-full border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-start=true]:bg-foreground data-[range-start=true]:text-background data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-end=true]:bg-foreground data-[range-end=true]:text-background data-[selected-single=true]:bg-foreground data-[selected-single=true]:text-background dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        //
+        // No group-data-[focused=true] ring here -- react-day-picker marks a
+        // day "focused" as soon as it's clicked/selected, not just via
+        // keyboard nav, so that ring was showing as an unwanted grey outline
+        // on every selection. Button's own focus-visible:ring (its shared
+        // base class) still covers genuine keyboard-tab focus, since
+        // :focus-visible doesn't trigger on a mouse click the way
+        // react-day-picker's "focused" modifier does.
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-full border-0 leading-none font-normal data-[range-start=true]:bg-foreground data-[range-start=true]:text-background data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-end=true]:bg-foreground data-[range-end=true]:text-background data-[selected-single=true]:bg-foreground data-[selected-single=true]:text-background dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
         className
       )}
