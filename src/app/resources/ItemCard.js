@@ -41,10 +41,10 @@ export default function ItemCard({ item, photoUrl, posterPhotoUrl, status, isOwn
               {isOwn ? "posted by you" : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
             </p>
           </div>
-          <Badge
-            variant={status.available ? "default" : "secondary"}
-            className="mt-2 w-fit"
-          >
+          {/* Same light-grey secondary style regardless of availability --
+              status is conveyed by the label text itself ("Available now" vs
+              "Back Jul 20"), not by a color distinction. */}
+          <Badge variant="secondary" className="mt-2 w-fit">
             {status.label}
           </Badge>
         </CardContent>
