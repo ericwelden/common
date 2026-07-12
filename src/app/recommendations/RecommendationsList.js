@@ -58,7 +58,7 @@ export default function RecommendationsList({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search recommendations…"
-          className="flex-1 bg-card"
+          className="flex-1"
         />
         <Select
           value={category}
@@ -68,7 +68,7 @@ export default function RecommendationsList({
             ...categories.map((cat) => ({ value: cat, label: cat })),
           ]}
         >
-          <SelectTrigger className="w-full shrink-0 bg-card sm:w-48">
+          <SelectTrigger className="w-full shrink-0 sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -87,7 +87,12 @@ export default function RecommendationsList({
           {filtered.map((rec) => (
             <li key={rec.id}>
               <Card>
-                <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+                {/* flex, not just flex-row -- CardHeader's base className is
+                    `grid`, and flex-row alone (no `flex`) doesn't switch that
+                    off, so the badge silently dropped to its own row below
+                    the name instead of sitting beside it. Same bug as
+                    AboutCard.js's close button. */}
+                <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
                   {/* A real heading, not shadcn's CardTitle -- CardTitle
                       renders a plain <div>, which would drop every
                       recommendation's name from heading navigation. */}

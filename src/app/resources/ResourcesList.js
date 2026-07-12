@@ -42,7 +42,7 @@ export default function ResourcesList({ cards }) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search items…"
-          className="flex-1 bg-card"
+          className="flex-1"
         />
         <div className="flex shrink-0 items-center gap-2">
           <Checkbox

@@ -25,7 +25,12 @@ export default function AboutCard() {
     <Card
       className={`absolute inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] ${OVERLAY_Z} shadow-sm sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-80`}
     >
-      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+      {/* CardHeader's base className is `grid` (single implicit column
+          unless it has a CardAction child) -- flex-row alone only sets
+          flex-direction, it doesn't switch display off grid, so without an
+          explicit `flex` here the heading and close button silently stacked
+          into two grid rows instead of sitting side by side. */}
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         {/* A real heading, not shadcn's CardTitle -- CardTitle renders a
             plain <div>, which would drop this from heading/landmark
             navigation for screen reader users. */}
