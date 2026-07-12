@@ -102,6 +102,11 @@ export default function BookingCalendar({ itemId, reservations, presentation = "
                 disabled={disabled}
                 excludeDisabled
                 numberOfMonths={2}
+                // With two months stacked and scrollable, a trailing/leading
+                // filler day (e.g. Aug 1 at the end of July's grid) would
+                // just repeat the same date that's about to appear as a real
+                // cell at the start of the next month's own grid.
+                showOutsideDays={false}
                 className="w-full border-0 p-0"
               />
             </div>
