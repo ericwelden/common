@@ -1,10 +1,8 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrls } from "@/lib/supabase/storage";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
-import { Button } from "@/components/ui/button";
 import ResourcesList from "./ResourcesList";
 
 // "Currently out" only reflects a reservation covering *today* -- an item
@@ -74,11 +72,6 @@ export default async function ResourcesPage() {
   return (
     <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-lg font-semibold tracking-tight">Resources</h1>
-          <Button render={<Link href="/resources/new" />}>+ Add an item</Button>
-        </div>
-
         <ResourcesList cards={cards} />
       </div>
     </main>
