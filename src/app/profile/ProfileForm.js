@@ -13,6 +13,10 @@ export default function ProfileForm({
   initialStreet,
   initialAboutMe,
   initialPhotoUrl,
+  initialVenmoHandle,
+  initialCashappHandle,
+  initialPaypalHandle,
+  initialSuggestedDailyRate,
 }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
   const [previewUrl, setPreviewUrl] = useState(initialPhotoUrl ?? null);
@@ -75,6 +79,73 @@ export default function ProfileForm({
           rows={3}
           defaultValue={initialAboutMe ?? ""}
           placeholder="A little about you..."
+        />
+      </div>
+
+      {/* All optional -- set any of these and a neighbor who reserves one of
+          your items gets a skippable "send a thank-you" prompt after booking,
+          with a link that opens straight to whichever of these they pick.
+          This app never touches the money itself; it just builds the link. */}
+      <div className="flex flex-col gap-1.5 border-t border-border pt-4">
+        <p className="text-xs font-medium text-foreground">
+          Payment handles (optional)
+        </p>
+        <p className="text-xs leading-5 text-muted-foreground">
+          Let neighbors send you a thank-you when they borrow something of
+          yours.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="venmoHandle" className="text-xs text-muted-foreground">
+          Venmo
+        </Label>
+        <Input
+          id="venmoHandle"
+          name="venmoHandle"
+          defaultValue={initialVenmoHandle ?? ""}
+          placeholder="your-venmo-handle"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="cashappHandle" className="text-xs text-muted-foreground">
+          Cash App
+        </Label>
+        <Input
+          id="cashappHandle"
+          name="cashappHandle"
+          defaultValue={initialCashappHandle ?? ""}
+          placeholder="yourcashtag"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="paypalHandle" className="text-xs text-muted-foreground">
+          PayPal
+        </Label>
+        <Input
+          id="paypalHandle"
+          name="paypalHandle"
+          defaultValue={initialPaypalHandle ?? ""}
+          placeholder="your-paypal-me-handle"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="suggestedDailyRate" className="text-xs text-muted-foreground">
+          Suggested $ per day
+        </Label>
+        <Input
+          id="suggestedDailyRate"
+          name="suggestedDailyRate"
+          type="number"
+          min="0"
+          max="100"
+          step="1"
+          inputMode="numeric"
+          defaultValue={initialSuggestedDailyRate ?? ""}
+          placeholder="5"
         />
       </div>
 

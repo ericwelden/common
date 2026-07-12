@@ -40,7 +40,9 @@ export default async function ItemDetailPage({ params }) {
 
   const { data: item } = await supabase
     .from("items")
-    .select("*, profiles(display_name, photo_path)")
+    .select(
+      "*, profiles(display_name, photo_path, venmo_handle, cashapp_handle, paypal_handle, suggested_daily_rate)"
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -121,6 +123,13 @@ export default async function ItemDetailPage({ params }) {
               itemId={item.id}
               reservations={reservations ?? []}
               presentation="drawer"
+              ownerId={item.owner_id}
+              ownerDisplayName={item.profiles?.display_name ?? "the owner"}
+              ownerVenmoHandle={item.profiles?.venmo_handle}
+              ownerCashappHandle={item.profiles?.cashapp_handle}
+              ownerPaypalHandle={item.profiles?.paypal_handle}
+              ownerSuggestedDailyRate={item.profiles?.suggested_daily_rate}
+              currentUserId={userId}
             />
           </div>
         </div>
@@ -178,7 +187,17 @@ export default async function ItemDetailPage({ params }) {
           <h2 className="text-sm font-semibold text-foreground">
             Reserve this item
           </h2>
-          <BookingCalendar itemId={item.id} reservations={reservations ?? []} />
+          <BookingCalendar
+            itemId={item.id}
+            reservations={reservations ?? []}
+            ownerId={item.owner_id}
+            ownerDisplayName={item.profiles?.display_name ?? "the owner"}
+            ownerVenmoHandle={item.profiles?.venmo_handle}
+            ownerCashappHandle={item.profiles?.cashapp_handle}
+            ownerPaypalHandle={item.profiles?.paypal_handle}
+            ownerSuggestedDailyRate={item.profiles?.suggested_daily_rate}
+            currentUserId={userId}
+          />
         </div>
       </div>
     </main>

@@ -28,6 +28,16 @@ export async function updateProfile(prevState, formData) {
   const photo = formData.get("photo");
   const hasNewPhoto = photo && photo.size > 0;
 
+  // Stripped of a leading $/@ so link-building (src/lib/paymentLinks.js)
+  // never has to worry about a doubled symbol -- someone pasting their own
+  // "$cashtag" or "@handle" in is the expected case, not an edge case.
+  const venmoHandle = formData.get("venmoHandle")?.toString().trim().replace(/^[@$]/, "");
+  const cashappHandle = formData.get("cashappHandle")?.toString().trim().replace(/^[@$]/, "");
+  const paypalHandle = formData.get("paypalHandle")?.toString().trim().replace(/^[@$]/, "");
+  const suggestedDailyRateRaw = formData.get("suggestedDailyRate")?.toString().trim();
+  const parsedDailyRate = suggestedDailyRateRaw ? Number.parseInt(suggestedDailyRateRaw, 10) : NaN;
+  const suggestedDailyRate = Number.isFinite(parsedDailyRate) ? parsedDailyRate : null;
+
   if (!displayName) return { error: "Enter a name." };
 
   let newPhotoPath = null;
@@ -51,6 +61,10 @@ export async function updateProfile(prevState, formData) {
     display_name: displayName,
     street: street || null,
     about_me: aboutMe || null,
+    venmo_handle: venmoHandle || null,
+    cashapp_handle: cashappHandle || null,
+    paypal_handle: paypalHandle || null,
+    suggested_daily_rate: suggestedDailyRate,
     ...(hasNewPhoto ? { photo_path: newPhotoPath } : {}),
   });
 
