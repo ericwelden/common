@@ -96,13 +96,25 @@ function Calendar({
           "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none",
           defaultClassNames.day
         ),
-        // Cells fill their full width with no gap between them, and the
-        // button inside now has a flat inner edge for range endpoints (see
-        // CalendarDayButton), so adjacent range cells already sit flush
-        // against each other -- no bridging trick needed here anymore.
-        range_start: cn("relative isolate z-0", defaultClassNames.range_start),
+        // The day button is a full circle even at the start/end of a range
+        // (see CalendarDayButton), so it doesn't reach its cell's corners --
+        // without this, the grey range_middle fill next to it would leave a
+        // visible gap/notch at the corners instead of meeting the circle
+        // cleanly. after: fills exactly the inner half of the cell (the
+        // half facing the middle of the range, sized to reach the circle's
+        // own edge) with the same grey, and sits behind the button (z-0 vs
+        // the button's z-10) so the circle still visually wins where they
+        // overlap. Nothing is painted on the *outer* half (before the
+        // range's start / after its end), so no grey shows there.
+        range_start: cn(
+          "relative isolate z-0 after:absolute after:inset-y-0 after:right-0 after:w-1/2 after:bg-muted",
+          defaultClassNames.range_start
+        ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
-        range_end: cn("relative isolate z-0", defaultClassNames.range_end),
+        range_end: cn(
+          "relative isolate z-0 after:absolute after:inset-y-0 after:left-0 after:w-1/2 after:bg-muted",
+          defaultClassNames.range_end
+        ),
         // Lighter tint of the brand coral (bg-primary/10), not grey -- same
         // "light fill + solid-color text" pattern already used for the
         // destructive Button variant elsewhere in this app.
@@ -188,27 +200,16 @@ function CalendarDayButton({
       data-range-start={modifiers.range_start}
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
-      // Flattening a corner needs to key off these, not the raw
-      // data-range-start/data-range-end above -- those are both true
-      // together for a from-only click (the first day picked, before a
-      // range has a second end), and rounded-r-none + rounded-l-none firing
-      // at once flattens every corner into a plain square. These are only
-      // true when the day is *exclusively* the start (or end) of an
-      // actual two-ended range.
-      data-range-start-only={modifiers.range_start && !modifiers.range_end}
-      data-range-end-only={modifiers.range_end && !modifiers.range_start}
       className={cn(
         // bg-foreground/text-background (near-black), not the app's coral
         // bg-primary -- matches the reference date picker's own colors,
         // which stay neutral even though the rest of the app uses coral CTAs.
         //
-        // Base is a full circle (single-day selections and plain hover both
-        // want that), but a range's start/end round *only* their outer side
-        // -- rounded-r-none/rounded-l-none flatten the inner side facing the
-        // rest of the range, so the selection reads as one continuous
-        // capsule (rounded caps, flat middle) instead of two separate
-        // circles no matter where start/end land in the grid.
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-full border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-start=true]:bg-foreground data-[range-start=true]:text-background data-[range-start-only=true]:rounded-r-none data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-end=true]:bg-foreground data-[range-end=true]:text-background data-[range-end-only=true]:rounded-l-none data-[selected-single=true]:bg-foreground data-[selected-single=true]:text-background dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        // Every selection state is a full circle, including range start/end
+        // -- the range_start/range_end cell classes above paint the grey
+        // fill that meets the circle's edge, so there's no need to flatten
+        // any side of the button itself to avoid a gap.
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-full border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-start=true]:bg-foreground data-[range-start=true]:text-background data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-end=true]:bg-foreground data-[range-end=true]:text-background data-[selected-single=true]:bg-foreground data-[selected-single=true]:text-background dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
         className
       )}
