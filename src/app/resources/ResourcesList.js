@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { PlusIcon } from "lucide-react";
 import ItemCard from "./ItemCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,52 @@ export default function ResourcesList({ cards }) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* Mobile: title + a small icon+label button inline on one row, search
+          + filter smaller on their own row below. Desktop (sm+): the
+          original single centered row. Two separate blocks (one per
+          breakpoint) rather than one responsive tree, matching this app's
+          existing BottomNav/HeaderNav split for the same reason -- the
+          mobile and desktop arrangements differ enough structurally that
+          forcing one DOM shape to cover both got harder to reason about
+          than just rendering each. */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-lg font-semibold tracking-tight">Resources</h1>
+          <Button render={<Link href="/resources/new" />} size="sm" className="shrink-0">
+            <PlusIcon aria-hidden="true" />
+            Add item
+          </Button>
+        </div>
+        {cards.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search items…"
+              className="h-9 flex-1 rounded-full"
+            />
+            <Select
+              value={availability}
+              onValueChange={setAvailability}
+              items={AVAILABILITY_OPTIONS}
+            >
+              <SelectTrigger size="sm" className="w-32 shrink-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {AVAILABILITY_OPTIONS.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      <div className="hidden sm:flex sm:items-center sm:gap-3">
         <h1 className="shrink-0 text-lg font-semibold tracking-tight">
           Resources
         </h1>
@@ -49,7 +95,7 @@ export default function ResourcesList({ cards }) {
             title and the button, then centers search+filter within it --
             that's what keeps the button pinned to the end even when the
             group below is empty (zero items) or narrower than that space. */}
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+        <div className="flex flex-1 items-center justify-center gap-3">
           {/* Search + filter are moot with nothing to search, so they only
               join the row once there's at least one item. */}
           {cards.length > 0 && (
