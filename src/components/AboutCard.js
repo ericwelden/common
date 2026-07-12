@@ -1,7 +1,7 @@
 "use client";
 
 import { useAboutCard } from "./AboutCardContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -26,7 +26,12 @@ export default function AboutCard() {
       className={`absolute inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] ${OVERLAY_Z} shadow-sm sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:w-80`}
     >
       <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
-        <CardTitle>Welcome to Common</CardTitle>
+        {/* A real heading, not shadcn's CardTitle -- CardTitle renders a
+            plain <div>, which would drop this from heading/landmark
+            navigation for screen reader users. */}
+        <h2 className="font-heading text-base leading-snug font-medium">
+          Welcome to Common
+        </h2>
         <Button
           variant="ghost"
           size="icon-xs"
@@ -48,7 +53,9 @@ export default function AboutCard() {
           {FEATURES.map(({ label, live }) => (
             <li key={label} className="flex items-center gap-2.5 text-sm">
               <span className="text-foreground">{label}</span>
-              <Badge variant={live ? "default" : "outline"} className="ml-auto">
+              {/* secondary, not outline -- matches ComingSoon.js's "coming
+                  soon" badge for the same not-live status elsewhere in the app. */}
+              <Badge variant={live ? "default" : "secondary"} className="ml-auto">
                 {live ? "live" : "coming soon"}
               </Badge>
             </li>

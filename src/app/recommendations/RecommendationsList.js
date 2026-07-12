@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -60,9 +60,16 @@ export default function RecommendationsList({
           placeholder="Search recommendations…"
           className="flex-1 bg-card"
         />
-        <Select value={category} onValueChange={setCategory}>
+        <Select
+          value={category}
+          onValueChange={setCategory}
+          items={[
+            { value: "all", label: "All categories" },
+            ...categories.map((cat) => ({ value: cat, label: cat })),
+          ]}
+        >
           <SelectTrigger className="w-full shrink-0 bg-card sm:w-48">
-            <SelectValue placeholder="All categories" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All categories</SelectItem>
@@ -76,32 +83,39 @@ export default function RecommendationsList({
       </div>
 
       {filtered.length > 0 ? (
-        <div className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-3">
           {filtered.map((rec) => (
-            <Card key={rec.id}>
-              <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
-                <CardTitle>{rec.name}</CardTitle>
-                <Badge variant="secondary" className="shrink-0">
-                  {rec.category}
-                </Badge>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-2">
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {rec.note}
-                </p>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span>—</span>
-                  <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
-                  <span>
-                    {rec.author_id === userId
-                      ? "posted by you"
-                      : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+            <li key={rec.id}>
+              <Card>
+                <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+                  {/* A real heading, not shadcn's CardTitle -- CardTitle
+                      renders a plain <div>, which would drop every
+                      recommendation's name from heading navigation. */}
+                  <h2 className="font-heading text-base leading-snug font-medium">
+                    {rec.name}
+                  </h2>
+                  <Badge variant="secondary" className="shrink-0">
+                    {rec.category}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2">
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    {rec.note}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>—</span>
+                    <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
+                    <span>
+                      {rec.author_id === userId
+                        ? "posted by you"
+                        : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
         <p className="py-12 text-center text-sm text-muted-foreground">
           No recommendations match your search.

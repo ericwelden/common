@@ -25,9 +25,11 @@ export default function ProfileForm({
   return (
     <form action={action} className="flex w-full max-w-xs flex-col gap-4 text-left">
       <div className="flex flex-col items-center gap-2 self-center">
-        <Avatar className="size-20 border border-border">
+        {/* No extra border class -- the primitive already draws its own ring
+            via an ::after pseudo-element; a real border on top would double it. */}
+        <Avatar className="size-20">
           {previewUrl && <AvatarImage src={previewUrl} alt="" />}
-          <AvatarFallback />
+          <AvatarFallback aria-hidden="true" />
         </Avatar>
         <label className="cursor-pointer text-xs font-medium text-primary hover:underline">
           Change photo
@@ -42,9 +44,7 @@ export default function ProfileForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="displayName" className="text-xs text-muted-foreground">
-          Display name
-        </Label>
+        <Label htmlFor="displayName">Display name</Label>
         <Input
           id="displayName"
           name="displayName"
@@ -82,7 +82,12 @@ export default function ProfileForm({
         {pending ? "Saving…" : "Save"}
       </Button>
       {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-      {state?.success && <p className="text-sm text-primary">Saved.</p>}
+      {/* text-primary is now a near-black neutral (no distinct accent color
+          left in the palette), so weight carries the "this succeeded" signal
+          instead of a color barely different from ordinary body text. */}
+      {state?.success && (
+        <p className="text-sm font-medium text-foreground">Saved.</p>
+      )}
     </form>
   );
 }

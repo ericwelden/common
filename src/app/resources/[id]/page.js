@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrl } from "@/lib/supabase/storage";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
 import Avatar from "@/components/Avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import BookingCalendar from "./BookingCalendar";
 import CancelReservationButton from "./CancelReservationButton";
 
@@ -80,7 +80,12 @@ export default async function ItemDetailPage({ params }) {
         {myReservations.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Your upcoming reservations</CardTitle>
+              {/* A real heading, not shadcn's CardTitle -- CardTitle renders
+                  a plain <div>, and this page's other heading ("Reserve this
+                  item" below) is a real <h2>, so this stayed inconsistent. */}
+              <h2 className="text-sm font-semibold text-foreground">
+                Your upcoming reservations
+              </h2>
             </CardHeader>
             <CardContent>
               <ul className="flex flex-col gap-2">

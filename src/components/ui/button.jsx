@@ -44,11 +44,21 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  nativeButton,
+  render,
   ...props
 }) {
   return (
     <ButtonPrimitive
       data-slot="button"
+      // Base UI defaults nativeButton to true, which assumes the rendered
+      // element is a real <button>. When `render` points at something else
+      // (e.g. next/link's <a>), that mismatch makes Base UI merge an invalid
+      // type="button" onto the <a> instead of role="button", and logs a dev
+      // warning on every render. Infer false whenever `render` is used,
+      // unless a caller explicitly overrides it.
+      nativeButton={nativeButton ?? !render}
+      render={render}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props} />
   );

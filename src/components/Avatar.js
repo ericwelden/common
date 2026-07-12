@@ -8,9 +8,14 @@ import {
 // so a future change to how avatars look happens in one place.
 export default function Avatar({ photoUrl }) {
   return (
-    <AvatarPrimitive size="sm" className="border border-border">
+    // No extra border class here -- the primitive already draws its own ring
+    // via an ::after pseudo-element sized to the root's full box; adding a
+    // real `border` on top shrinks the content box and doubles the ring.
+    <AvatarPrimitive size="sm">
       {photoUrl && <AvatarImage src={photoUrl} alt="" />}
-      <AvatarFallback />
+      {/* Purely decorative placeholder -- the accessible "posted by X" text
+          sits right next to it, so this shouldn't be announced separately. */}
+      <AvatarFallback aria-hidden="true" />
     </AvatarPrimitive>
   );
 }
