@@ -1,19 +1,28 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { createItem } from "./actions";
+import { updateItem } from "../actions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-export default function NewItemForm() {
-  const [state, action, pending] = useActionState(createItem, undefined);
-  const [previewUrl, setPreviewUrl] = useState(null);
+export default function EditItemForm({
+  itemId,
+  initialName,
+  initialDescription,
+  initialPhotoUrl,
+  initialSuggestedDailyRate,
+}) {
+  const [state, action, pending] = useActionState(
+    updateItem.bind(null, itemId),
+    undefined
+  );
+  const [previewUrl, setPreviewUrl] = useState(initialPhotoUrl ?? null);
 
   function handlePhotoChange(event) {
     const file = event.target.files?.[0];
-    setPreviewUrl(file ? URL.createObjectURL(file) : null);
+    setPreviewUrl(file ? URL.createObjectURL(file) : (initialPhotoUrl ?? null));
   }
 
   return (
@@ -24,6 +33,7 @@ export default function NewItemForm() {
           id="name"
           name="name"
           required
+          defaultValue={initialName ?? ""}
           placeholder="Ladder, lawnmower, folding tables…"
         />
       </div>
@@ -34,6 +44,7 @@ export default function NewItemForm() {
           id="description"
           name="description"
           rows={3}
+          defaultValue={initialDescription ?? ""}
           placeholder="Anything a neighbor should know before borrowing it."
         />
       </div>
@@ -41,7 +52,7 @@ export default function NewItemForm() {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="photo">Photo</Label>
         {previewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element -- a local object URL preview, not an optimizable static/remote asset.
+          // eslint-disable-next-line @next/next/no-img-element -- a signed URL or local object URL preview, not an optimizable static/remote asset.
           <img
             src={previewUrl}
             alt=""
@@ -53,7 +64,6 @@ export default function NewItemForm() {
           name="photo"
           type="file"
           accept="image/jpeg,image/png,image/webp,image/heic"
-          required
           onChange={handlePhotoChange}
           className="text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-2 file:text-sm file:font-medium file:text-secondary-foreground hover:file:bg-secondary/80"
         />
@@ -71,6 +81,7 @@ export default function NewItemForm() {
           max="100"
           step="1"
           inputMode="numeric"
+          defaultValue={initialSuggestedDailyRate ?? ""}
           placeholder="5"
         />
         <p className="text-xs text-muted-foreground">
@@ -79,7 +90,7 @@ export default function NewItemForm() {
       </div>
 
       <Button type="submit" disabled={pending}>
-        {pending ? "Sharing…" : "Share this item"}
+        {pending ? "Saving…" : "Save changes"}
       </Button>
 
       {state?.error && (

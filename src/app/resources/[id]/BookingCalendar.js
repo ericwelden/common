@@ -32,7 +32,7 @@ export default function BookingCalendar({
   ownerVenmoHandle,
   ownerCashappHandle,
   ownerPaypalHandle,
-  ownerSuggestedDailyRate,
+  itemSuggestedDailyRate,
   currentUserId,
 }) {
   const [range, setRange] = useState();
@@ -113,7 +113,7 @@ export default function BookingCalendar({
       cashappHandle={ownerCashappHandle}
       paypalHandle={ownerPaypalHandle}
       nights={completedDays}
-      suggestedDailyRate={ownerSuggestedDailyRate}
+      suggestedDailyRate={itemSuggestedDailyRate}
       onDismiss={() => handleOpenChange(false)}
     />
   );

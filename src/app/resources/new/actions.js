@@ -18,6 +18,11 @@ export async function createItem(prevState, formData) {
   const name = formData.get("name")?.toString().trim();
   const description = formData.get("description")?.toString().trim();
   const photo = formData.get("photo");
+  // Per-item, not per-owner -- a ladder and a lawnmower are worth different
+  // suggested thank-yous even from the same neighbor (see ThankOwnerPrompt.js).
+  const suggestedDailyRateRaw = formData.get("suggestedDailyRate")?.toString().trim();
+  const parsedDailyRate = suggestedDailyRateRaw ? Number.parseInt(suggestedDailyRateRaw, 10) : NaN;
+  const suggestedDailyRate = Number.isFinite(parsedDailyRate) ? parsedDailyRate : null;
 
   if (!name || !photo || photo.size === 0) {
     return { error: "Name and a photo are required." };
@@ -33,7 +38,13 @@ export async function createItem(prevState, formData) {
 
   const { data: item, error: insertError } = await supabase
     .from("items")
-    .insert({ owner_id: userId, name, description, photo_path: path })
+    .insert({
+      owner_id: userId,
+      name,
+      description,
+      photo_path: path,
+      suggested_daily_rate: suggestedDailyRate,
+    })
     .select("id")
     .single();
 

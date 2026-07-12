@@ -16,7 +16,6 @@ export default function ProfileForm({
   initialVenmoHandle,
   initialCashappHandle,
   initialPaypalHandle,
-  initialSuggestedDailyRate,
 }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
   const [previewUrl, setPreviewUrl] = useState(initialPhotoUrl ?? null);
@@ -129,23 +128,6 @@ export default function ProfileForm({
           name="paypalHandle"
           defaultValue={initialPaypalHandle ?? ""}
           placeholder="your-paypal-me-handle"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="suggestedDailyRate" className="text-xs text-muted-foreground">
-          Suggested $ per day
-        </Label>
-        <Input
-          id="suggestedDailyRate"
-          name="suggestedDailyRate"
-          type="number"
-          min="0"
-          max="100"
-          step="1"
-          inputMode="numeric"
-          defaultValue={initialSuggestedDailyRate ?? ""}
-          placeholder="5"
         />
       </div>
 

@@ -41,7 +41,7 @@ export default async function ItemDetailPage({ params }) {
   const { data: item } = await supabase
     .from("items")
     .select(
-      "*, profiles(display_name, photo_path, venmo_handle, cashapp_handle, paypal_handle, suggested_daily_rate)"
+      "*, profiles(display_name, photo_path, venmo_handle, cashapp_handle, paypal_handle)"
     )
     .eq("id", id)
     .maybeSingle();
@@ -92,9 +92,19 @@ export default async function ItemDetailPage({ params }) {
         </div>
 
         <div className="relative -mt-6 flex flex-col gap-2 rounded-t-3xl bg-card px-5 pb-6 pt-6 shadow-elevated">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            {item.name}
-          </h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+              {item.name}
+            </h1>
+            {isOwn && (
+              <Link
+                href={`/resources/${item.id}/edit`}
+                className="shrink-0 pt-1 text-sm font-medium text-primary"
+              >
+                Edit
+              </Link>
+            )}
+          </div>
           <div className="flex items-center gap-1.5">
             <Avatar photoUrl={posterPhotoUrl} />
             <p className="text-xs text-muted-foreground">
@@ -128,7 +138,7 @@ export default async function ItemDetailPage({ params }) {
               ownerVenmoHandle={item.profiles?.venmo_handle}
               ownerCashappHandle={item.profiles?.cashapp_handle}
               ownerPaypalHandle={item.profiles?.paypal_handle}
-              ownerSuggestedDailyRate={item.profiles?.suggested_daily_rate}
+              itemSuggestedDailyRate={item.suggested_daily_rate}
               currentUserId={userId}
             />
           </div>
@@ -148,9 +158,19 @@ export default async function ItemDetailPage({ params }) {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <h1 className="text-lg font-semibold tracking-tight text-foreground">
-              {item.name}
-            </h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="text-lg font-semibold tracking-tight text-foreground">
+                {item.name}
+              </h1>
+              {isOwn && (
+                <Link
+                  href={`/resources/${item.id}/edit`}
+                  className="shrink-0 text-sm font-medium text-primary"
+                >
+                  Edit
+                </Link>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <Avatar photoUrl={posterPhotoUrl} />
               <p className="text-xs text-muted-foreground">
@@ -195,7 +215,7 @@ export default async function ItemDetailPage({ params }) {
             ownerVenmoHandle={item.profiles?.venmo_handle}
             ownerCashappHandle={item.profiles?.cashapp_handle}
             ownerPaypalHandle={item.profiles?.paypal_handle}
-            ownerSuggestedDailyRate={item.profiles?.suggested_daily_rate}
+            itemSuggestedDailyRate={item.suggested_daily_rate}
             currentUserId={userId}
           />
         </div>

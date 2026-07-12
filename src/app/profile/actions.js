@@ -34,9 +34,6 @@ export async function updateProfile(prevState, formData) {
   const venmoHandle = formData.get("venmoHandle")?.toString().trim().replace(/^[@$]/, "");
   const cashappHandle = formData.get("cashappHandle")?.toString().trim().replace(/^[@$]/, "");
   const paypalHandle = formData.get("paypalHandle")?.toString().trim().replace(/^[@$]/, "");
-  const suggestedDailyRateRaw = formData.get("suggestedDailyRate")?.toString().trim();
-  const parsedDailyRate = suggestedDailyRateRaw ? Number.parseInt(suggestedDailyRateRaw, 10) : NaN;
-  const suggestedDailyRate = Number.isFinite(parsedDailyRate) ? parsedDailyRate : null;
 
   if (!displayName) return { error: "Enter a name." };
 
@@ -64,7 +61,6 @@ export async function updateProfile(prevState, formData) {
     venmo_handle: venmoHandle || null,
     cashapp_handle: cashappHandle || null,
     paypal_handle: paypalHandle || null,
-    suggested_daily_rate: suggestedDailyRate,
     ...(hasNewPhoto ? { photo_path: newPhotoPath } : {}),
   });
 

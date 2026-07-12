@@ -17,7 +17,7 @@ export default async function ProfilePage({ searchParams }) {
     const { data: profileRow } = await supabase
       .from("profiles")
       .select(
-        "display_name, street, about_me, photo_path, venmo_handle, cashapp_handle, paypal_handle, suggested_daily_rate"
+        "display_name, street, about_me, photo_path, venmo_handle, cashapp_handle, paypal_handle"
       )
       .eq("id", claims.sub)
       .maybeSingle();
@@ -48,7 +48,6 @@ export default async function ProfilePage({ searchParams }) {
             initialVenmoHandle={profile?.venmo_handle}
             initialCashappHandle={profile?.cashapp_handle}
             initialPaypalHandle={profile?.paypal_handle}
-            initialSuggestedDailyRate={profile?.suggested_daily_rate}
           />
           <form action={signOut}>
             <Button type="submit" variant="outline">

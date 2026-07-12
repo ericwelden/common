@@ -50,6 +50,72 @@ export async function reserveItem(prevState, formData) {
   return { success: true };
 }
 
+// itemId is bound before (prevState, formData) by the caller (EditItemForm.js),
+// matching useActionState's expected action signature. Photo replacement
+// follows updateProfile's upload-then-swap pattern (src/app/profile/actions.js)
+// -- optional on every edit, only touched when a new file is actually chosen.
+export async function updateItem(itemId, prevState, formData) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims) redirect("/profile"); // defense in depth -- proxy already blocks this page
+
+  const name = formData.get("name")?.toString().trim();
+  const description = formData.get("description")?.toString().trim();
+  const photo = formData.get("photo");
+  const hasNewPhoto = photo && photo.size > 0;
+  // Per-item, not per-owner -- see createItem in resources/new/actions.js.
+  const suggestedDailyRateRaw = formData.get("suggestedDailyRate")?.toString().trim();
+  const parsedDailyRate = suggestedDailyRateRaw ? Number.parseInt(suggestedDailyRateRaw, 10) : NaN;
+  const suggestedDailyRate = Number.isFinite(parsedDailyRate) ? parsedDailyRate : null;
+
+  if (!name) return { error: "Name is required." };
+
+  let newPhotoPath = null;
+  if (hasNewPhoto) {
+    const ext = photo.type.split("/")[1] ?? "jpg";
+    newPhotoPath = `${data.claims.sub}/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("item-photos")
+      .upload(newPhotoPath, photo, { contentType: photo.type });
+    if (uploadError) return { error: "Photo upload failed — try again." };
+  }
+
+  const { data: existingItem } = await supabase
+    .from("items")
+    .select("photo_path")
+    .eq("id", itemId)
+    .maybeSingle();
+
+  // RLS's items_update_own policy already restricts this to the item's
+  // owner -- a non-owner's update would just silently affect 0 rows, but the
+  // UI never renders an Edit link on anyone else's item (see page.js), and
+  // the edit page itself redirects a non-owner away before this can be hit.
+  const { error } = await supabase
+    .from("items")
+    .update({
+      name,
+      description,
+      suggested_daily_rate: suggestedDailyRate,
+      ...(hasNewPhoto ? { photo_path: newPhotoPath } : {}),
+    })
+    .eq("id", itemId);
+
+  if (error) {
+    if (hasNewPhoto) {
+      await supabase.storage.from("item-photos").remove([newPhotoPath]);
+    }
+    return { error: "Couldn't save that — try again." };
+  }
+
+  if (hasNewPhoto && existingItem?.photo_path) {
+    await supabase.storage.from("item-photos").remove([existingItem.photo_path]);
+  }
+
+  revalidatePath(`/resources/${itemId}`);
+  revalidatePath("/resources");
+  redirect(`/resources/${itemId}`);
+}
+
 // Extra args (reservationId, itemId) are bound before (prevState, formData)
 // by the caller (CancelReservationButton.js), matching useActionState's
 // expected action signature.
