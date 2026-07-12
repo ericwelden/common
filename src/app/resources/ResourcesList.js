@@ -45,40 +45,42 @@ export default function ResourcesList({ cards }) {
         <h1 className="shrink-0 text-lg font-semibold tracking-tight">
           Resources
         </h1>
-        {/* Search + filter are moot with nothing to search, so they only
-            join the row once there's at least one item. */}
-        {cards.length > 0 && (
-          <>
-            <Input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search items…"
-              className="sm:flex-1"
-            />
-            <Select
-              value={availability}
-              onValueChange={setAvailability}
-              items={AVAILABILITY_OPTIONS}
-            >
-              <SelectTrigger className="w-full shrink-0 sm:w-44">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {AVAILABILITY_OPTIONS.map(({ value, label }) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </>
-        )}
-        {/* sm:ml-auto only does anything when the row has no flex-1 sibling
-            to already push it there (the zero-items case above) -- with the
-            search input present it's a no-op since flex-1 has already
-            claimed the leftover space. */}
-        <Button render={<Link href="/resources/new" />} className="shrink-0 sm:ml-auto">
+        {/* flex-1 so this middle group claims the leftover space between the
+            title and the button, then centers search+filter within it --
+            that's what keeps the button pinned to the end even when the
+            group below is empty (zero items) or narrower than that space. */}
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+          {/* Search + filter are moot with nothing to search, so they only
+              join the row once there's at least one item. */}
+          {cards.length > 0 && (
+            <>
+              <Input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search items…"
+                className="sm:w-56"
+              />
+              <Select
+                value={availability}
+                onValueChange={setAvailability}
+                items={AVAILABILITY_OPTIONS}
+              >
+                <SelectTrigger className="w-full shrink-0 sm:w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABILITY_OPTIONS.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+        </div>
+        <Button render={<Link href="/resources/new" />} className="shrink-0">
           Add item
         </Button>
       </div>

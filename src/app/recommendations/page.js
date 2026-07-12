@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrls } from "@/lib/supabase/storage";
-import { Button } from "@/components/ui/button";
 import RecommendationsList from "./RecommendationsList";
 
 export default async function RecommendationsPage() {
@@ -33,15 +31,6 @@ export default async function RecommendationsPage() {
   return (
     <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-lg font-semibold tracking-tight">
-            Recommendations
-          </h1>
-          <Button render={<Link href="/recommendations/new" />}>
-            + Add a recommendation
-          </Button>
-        </div>
-
         <RecommendationsList
           recommendations={recommendations ?? []}
           posterPhotoUrls={Object.fromEntries(posterPhotoUrls)}

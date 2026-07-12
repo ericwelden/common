@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -42,47 +44,62 @@ export default function RecommendationsList({
     });
   }, [recommendations, query, category]);
 
-  if (recommendations.length === 0) {
-    return (
-      <p className="py-12 text-center text-sm text-muted-foreground">
-        No recommendations yet — be the first to share one.
-      </p>
-    );
-  }
-
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search recommendations…"
-          className="flex-1"
-        />
-        <Select
-          value={category}
-          onValueChange={setCategory}
-          items={[
-            { value: "all", label: "All categories" },
-            ...categories.map((cat) => ({ value: cat, label: cat })),
-          ]}
-        >
-          <SelectTrigger className="w-full shrink-0 sm:w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <h1 className="shrink-0 text-lg font-semibold tracking-tight">
+          Recommendations
+        </h1>
+        {/* flex-1 so this middle group claims the leftover space between the
+            title and the button, then centers search+filter within it --
+            that's what keeps the button pinned to the end even when the
+            group below is empty (zero recommendations) or narrower than
+            that space. */}
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+          {/* Search + filter are moot with nothing to search, so they only
+              join the row once there's at least one recommendation. */}
+          {recommendations.length > 0 && (
+            <>
+              <Input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search recommendations…"
+                className="sm:w-56"
+              />
+              <Select
+                value={category}
+                onValueChange={setCategory}
+                items={[
+                  { value: "all", label: "All categories" },
+                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                ]}
+              >
+                <SelectTrigger className="w-full shrink-0 sm:w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All categories</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+        </div>
+        <Button render={<Link href="/recommendations/new" />} className="shrink-0">
+          Add recommendation
+        </Button>
       </div>
 
-      {filtered.length > 0 ? (
+      {recommendations.length === 0 ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          No recommendations yet — be the first to share one.
+        </p>
+      ) : filtered.length > 0 ? (
         <ul className="flex flex-col gap-3">
           {filtered.map((rec) => (
             <li key={rec.id}>
