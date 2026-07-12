@@ -171,15 +171,32 @@ function CalendarDayButton({
       variant="ghost"
       size="icon"
       data-day={day.date.toLocaleDateString(locale?.code)}
+      // range_start and range_end are BOTH true (not both false) for a
+      // from-only click, i.e. the first day picked before a range has a
+      // second end -- confirmed by inspecting the actual attributes react-day-picker
+      // sets. The old check (require all three false) excluded that day from
+      // "single", so it fell through to *both* the range-start and range-end
+      // corner rules at once, flattening every corner to a plain square.
+      // Treating range_start === range_end as "single" (true when both are
+      // false -- a non-range selection -- or both true -- this from-only
+      // case) restores the full circle either way.
       data-selected-single={
         modifiers.selected &&
-        !modifiers.range_start &&
-        !modifiers.range_end &&
-        !modifiers.range_middle
+        !modifiers.range_middle &&
+        modifiers.range_start === modifiers.range_end
       }
       data-range-start={modifiers.range_start}
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
+      // Flattening a corner needs to key off these, not the raw
+      // data-range-start/data-range-end above -- those are both true
+      // together for a from-only click (the first day picked, before a
+      // range has a second end), and rounded-r-none + rounded-l-none firing
+      // at once flattens every corner into a plain square. These are only
+      // true when the day is *exclusively* the start (or end) of an
+      // actual two-ended range.
+      data-range-start-only={modifiers.range_start && !modifiers.range_end}
+      data-range-end-only={modifiers.range_end && !modifiers.range_start}
       className={cn(
         // bg-foreground/text-background (near-black), not the app's coral
         // bg-primary -- matches the reference date picker's own colors,
@@ -191,7 +208,7 @@ function CalendarDayButton({
         // rest of the range, so the selection reads as one continuous
         // capsule (rounded caps, flat middle) instead of two separate
         // circles no matter where start/end land in the grid.
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-full border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-start=true]:rounded-r-none data-[range-start=true]:bg-foreground data-[range-start=true]:text-background data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-end=true]:rounded-l-none data-[range-end=true]:bg-foreground data-[range-end=true]:text-background data-[selected-single=true]:bg-foreground data-[selected-single=true]:text-background dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-full border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-start=true]:bg-foreground data-[range-start=true]:text-background data-[range-start-only=true]:rounded-r-none data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-end=true]:bg-foreground data-[range-end=true]:text-background data-[range-end-only=true]:rounded-l-none data-[selected-single=true]:bg-foreground data-[selected-single=true]:text-background dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
         className
       )}
