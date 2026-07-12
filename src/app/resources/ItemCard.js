@@ -6,7 +6,12 @@ import { Badge } from "@/components/ui/badge";
 export default function ItemCard({ item, photoUrl, posterPhotoUrl, status, isOwn }) {
   return (
     <Card className="overflow-hidden py-0 shadow-sm transition hover:shadow-md">
-      <Link href={`/resources/${item.id}`} className="flex flex-col">
+      {/* block, not flex flex-col -- a column-flex ancestor breaks the
+          aspect-square child's aspect-ratio sizing once the <img> inside it
+          has its own intrinsic ratio: the box ends up sized to the image's
+          ratio instead of the square it's supposed to crop to. Plain block
+          stacking achieves the same vertical layout without that bug. */}
+      <Link href={`/resources/${item.id}`} className="block">
         <div className="aspect-square w-full bg-muted">
           {photoUrl && (
             // eslint-disable-next-line @next/next/no-img-element -- photoUrl is a short-lived signed URL, not a static asset next/image can optimize.
