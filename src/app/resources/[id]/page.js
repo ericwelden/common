@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { format, subDays } from "date-fns";
+import { ArrowLeftIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedPhotoUrl } from "@/lib/supabase/storage";
 import { todayISO as getTodayISO, parseISODate } from "@/lib/date";
@@ -7,6 +9,25 @@ import Avatar from "@/components/Avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import BookingCalendar from "./BookingCalendar";
 import CancelReservationButton from "./CancelReservationButton";
+
+function ReservationsList({ reservations, itemId }) {
+  return (
+    <ul className="flex flex-col gap-2">
+      {reservations.map((r) => (
+        <li
+          key={r.id}
+          className="flex items-center justify-between gap-3 text-sm text-muted-foreground"
+        >
+          <span>
+            {format(parseISODate(r.start_date), "MMM d")} –{" "}
+            {format(subDays(parseISODate(r.end_date), 1), "MMM d")}
+          </span>
+          <CancelReservationButton reservationId={r.id} itemId={itemId} />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default async function ItemDetailPage({ params }) {
   const { id } = await params;
@@ -44,8 +65,68 @@ export default async function ItemDetailPage({ params }) {
   );
 
   return (
-    <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
-      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+    <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:px-5 sm:py-6 sm:pb-6">
+      {/* Mobile: full-bleed hero photo (no page padding above/beside it) with
+          a rounded card of details pulled up over its bottom edge. Desktop
+          keeps the original constrained, side-by-side layout below,
+          unchanged -- this treatment was asked for "on mobile" specifically. */}
+      <div className="sm:hidden">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+          {photoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- signed URL, not a static asset
+            <img
+              src={photoUrl}
+              alt={item.name}
+              className="h-full w-full object-cover"
+            />
+          )}
+          <Link
+            href="/resources"
+            aria-label="Back to Resources"
+            className="absolute left-4 top-4 flex size-10 items-center justify-center rounded-full bg-card/90 text-foreground shadow-elevated backdrop-blur-sm"
+          >
+            <ArrowLeftIcon aria-hidden="true" className="size-5" />
+          </Link>
+        </div>
+
+        <div className="relative -mt-6 flex flex-col gap-2 rounded-t-3xl bg-card px-5 pb-6 pt-6 shadow-elevated">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            {item.name}
+          </h1>
+          <div className="flex items-center gap-1.5">
+            <Avatar photoUrl={posterPhotoUrl} />
+            <p className="text-xs text-muted-foreground">
+              {isOwn
+                ? "posted by you"
+                : `posted by ${item.profiles?.display_name ?? "a neighbor"}`}
+            </p>
+          </div>
+          {item.description && (
+            <p className="text-sm leading-6 text-muted-foreground">
+              {item.description}
+            </p>
+          )}
+
+          {myReservations.length > 0 && (
+            <div className="mt-4 flex flex-col gap-2">
+              <h2 className="text-sm font-semibold text-foreground">
+                Your upcoming reservations
+              </h2>
+              <ReservationsList reservations={myReservations} itemId={item.id} />
+            </div>
+          )}
+
+          <div className="mt-4">
+            <BookingCalendar
+              itemId={item.id}
+              reservations={reservations ?? []}
+              presentation="drawer"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto hidden max-w-2xl flex-col gap-6 sm:flex">
         <div className="flex flex-col gap-4 sm:flex-row">
           <div className="aspect-square w-full shrink-0 overflow-hidden rounded-2xl bg-muted sm:w-56">
             {photoUrl && (
@@ -88,23 +169,7 @@ export default async function ItemDetailPage({ params }) {
               </h2>
             </CardHeader>
             <CardContent>
-              <ul className="flex flex-col gap-2">
-                {myReservations.map((r) => (
-                  <li
-                    key={r.id}
-                    className="flex items-center justify-between gap-3 text-sm text-muted-foreground"
-                  >
-                    <span>
-                      {format(parseISODate(r.start_date), "MMM d")} –{" "}
-                      {format(subDays(parseISODate(r.end_date), 1), "MMM d")}
-                    </span>
-                    <CancelReservationButton
-                      reservationId={r.id}
-                      itemId={item.id}
-                    />
-                  </li>
-                ))}
-              </ul>
+              <ReservationsList reservations={myReservations} itemId={item.id} />
             </CardContent>
           </Card>
         )}
