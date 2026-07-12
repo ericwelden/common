@@ -10,16 +10,18 @@ export default function ItemCard({ item, photoUrl, posterPhotoUrl, status, isOwn
     // appears on hover. The photo rounds on all 4 corners via its own
     // rounded-2xl (not Card's clip-path -- Card's *:[img:first-child]
     // selector is a direct-child match that never reaches this nested
-    // Card > Link > div > img structure), inset from the card edges so
-    // the rounding is actually visible on every side, not just the top.
-    <Card className="overflow-hidden border-0 shadow-none ring-0 transition-shadow duration-200 ease-out hover:shadow-elevated">
+    // Card > Link > div > img structure). pt-0.5 overrides just the top
+    // half of Card's own py-(--card-spacing) so the photo sits a tight
+    // 2px from the card's left/top/right edges without touching the
+    // bottom padding below the text, which stays at the card default.
+    <Card className="overflow-hidden border-0 pt-0.5 shadow-none ring-0 transition-shadow duration-200 ease-out hover:shadow-elevated">
       {/* block, not flex flex-col -- a column-flex ancestor breaks the
           aspect-square child's aspect-ratio sizing once the <img> inside it
           has its own intrinsic ratio: the box ends up sized to the image's
           ratio instead of the square it's supposed to crop to. Plain block
           stacking achieves the same vertical layout without that bug. */}
       <Link href={`/resources/${item.id}`} className="block">
-        <div className="mx-(--card-spacing) aspect-square overflow-hidden rounded-2xl bg-muted">
+        <div className="mx-0.5 aspect-square overflow-hidden rounded-2xl bg-muted">
           {photoUrl && (
             // eslint-disable-next-line @next/next/no-img-element -- photoUrl is a short-lived signed URL, not a static asset next/image can optimize.
             <img
