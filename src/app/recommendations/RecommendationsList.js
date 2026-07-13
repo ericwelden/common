@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon, ThumbsUpIcon } from "lucide-react";
-import Avatar from "@/components/Avatar";
+import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon } from "lucide-react";
 import VoteButton from "./VoteButton";
+import DeleteRecommendationButton from "./DeleteRecommendationButton";
+import Recommenders from "./Recommenders";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,9 +24,9 @@ import {
 // categories neighbors have actually used so far, not a hardcoded list.
 export default function RecommendationsList({
   recommendations,
-  posterPhotoUrls,
+  photoUrls,
   userId,
-  voteCounts,
+  votesByRec,
   myVotedRecIds,
 }) {
   const [query, setQuery] = useState("");
@@ -44,7 +45,7 @@ export default function RecommendationsList({
       return (
         rec.business_name?.toLowerCase().includes(q) ||
         rec.contact_name?.toLowerCase().includes(q) ||
-        rec.note.toLowerCase().includes(q)
+        rec.note?.toLowerCase().includes(q)
       );
     });
   }, [recommendations, query, category]);
@@ -161,7 +162,22 @@ export default function RecommendationsList({
         </p>
       ) : filtered.length > 0 ? (
         <ul className="flex flex-col gap-3">
-          {filtered.map((rec) => (
+          {filtered.map((rec) => {
+            const primary = {
+              name: rec.profiles?.display_name ?? rec.author_name ?? "a neighbor",
+              photoUrl: photoUrls[rec.profiles?.photo_path],
+              isYou: rec.author_id === userId,
+            };
+            const others = (votesByRec[rec.id] ?? []).map((v) => ({
+              voterId: v.voterId,
+              name: v.name,
+              photoUrl: photoUrls[v.photoPath],
+              note: v.note,
+              isYou: v.voterId === userId,
+            }));
+            const voteCount = 1 + others.length;
+
+            return (
             <li key={rec.id}>
               {/* shadow-elevated at rest (not just on hover) -- unlike the
                   photo cards on /resources, these have no photo to carry
@@ -196,9 +212,15 @@ export default function RecommendationsList({
                   </Badge>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {rec.note}
-                  </p>
+                  {/* Only null after a promotion where the newly-promoted
+                      author hadn't left their own note (see
+                      deleteRecommendation in actions.js) -- never inheriting
+                      someone else's words rather than showing empty text. */}
+                  {rec.note && (
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      {rec.note}
+                    </p>
+                  )}
                   {(rec.phone || rec.email || rec.website) && (
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       {rec.phone && (
@@ -232,38 +254,29 @@ export default function RecommendationsList({
                       )}
                     </div>
                   )}
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span>—</span>
-                    <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
-                    <span>
-                      {rec.author_id === userId
-                        ? "posted by you"
-                        : `posted by ${rec.profiles?.display_name ?? rec.author_name ?? "a neighbor"}`}
-                    </span>
-                    {/* The count always includes the original poster (1 +
-                        however many neighbors +1'd), so it reads as "N
-                        neighbors recommend this," not just "N extra votes."
-                        No button on your own post -- you can't +1 yourself
-                        (also enforced server-side, see actions.js). */}
-                    <span className="ml-auto">
-                      {rec.author_id === userId ? (
-                        <span className="flex items-center gap-1.5 text-muted-foreground">
-                          <ThumbsUpIcon aria-hidden="true" className="size-3.5" />
-                          {1 + (voteCounts[rec.id] ?? 0)}
-                        </span>
-                      ) : (
-                        <VoteButton
-                          recommendationId={rec.id}
-                          count={1 + (voteCounts[rec.id] ?? 0)}
-                          hasVoted={myVotedRecIds.includes(rec.id)}
-                        />
-                      )}
-                    </span>
+                  <Recommenders primary={primary} others={others} />
+                  {/* Delete only ever shows for the card's current author
+                      (also enforced server-side via RLS, see actions.js) --
+                      everyone else gets the +1 control instead, never both. */}
+                  <div className="flex items-center justify-between gap-3">
+                    {rec.author_id === userId ? (
+                      <DeleteRecommendationButton recommendationId={rec.id} />
+                    ) : (
+                      <span />
+                    )}
+                    {rec.author_id !== userId && (
+                      <VoteButton
+                        recommendationId={rec.id}
+                        count={voteCount}
+                        hasVoted={myVotedRecIds.includes(rec.id)}
+                      />
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </li>
-          ))}
+            );
+          })}
         </ul>
       ) : (
         <p className="py-12 text-center text-sm text-muted-foreground">

@@ -25,13 +25,69 @@ export async function toggleRecommendationVote(recommendationId, prevState, form
     .eq("voter_id", userId)
     .maybeSingle();
 
+  // A second click always removes the vote outright -- no confirmation, no
+  // note to preserve. The note only matters on the way in.
+  const note = formData.get("note")?.toString().trim();
   const { error } = existing
     ? await supabase.from("recommendation_votes").delete().eq("id", existing.id)
-    : await supabase
-        .from("recommendation_votes")
-        .insert({ recommendation_id: recommendationId, voter_id: userId });
+    : await supabase.from("recommendation_votes").insert({
+        recommendation_id: recommendationId,
+        voter_id: userId,
+        note: note || null,
+      });
 
   if (error) return { error: "Couldn't update — try again." };
+
+  revalidatePath("/recommendations");
+  return { success: true };
+}
+
+// recommendationId is bound before (prevState, formData) by the caller
+// (DeleteRecommendationButton.js). RLS's recommendations_delete_own /
+// recommendations_update_own policies restrict this to the card's current
+// author -- the UI only ever renders the delete control for that person
+// (see RecommendationsList.js), so this is defense in depth, same pattern
+// as toggleRecommendationVote above.
+//
+// A card is more than just its current author's words -- other neighbors
+// may have +1'd it, some with their own note. Deleting shouldn't erase
+// their contributions along with it, so this doesn't just delete the row:
+// if anyone else recommended it, the *oldest* remaining voter is promoted
+// to author (their own note becomes the card's note, or the note goes
+// blank if they didn't leave one -- never inheriting the deleted author's
+// words under a new name) and their now-redundant vote row is removed.
+// Only when nobody else recommended it does the whole card disappear.
+export async function deleteRecommendation(recommendationId, prevState, formData) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims) redirect("/profile"); // defense in depth -- proxy already blocks this page
+
+  const { data: votes } = await supabase
+    .from("recommendation_votes")
+    .select("id, voter_id, note")
+    .eq("recommendation_id", recommendationId)
+    .order("created_at", { ascending: true });
+
+  const nextVoter = votes?.[0];
+
+  if (!nextVoter) {
+    const { error } = await supabase
+      .from("recommendations")
+      .delete()
+      .eq("id", recommendationId);
+    if (error) return { error: "Couldn't delete — try again." };
+  } else {
+    const { error: updateError } = await supabase
+      .from("recommendations")
+      .update({ author_id: nextVoter.voter_id, author_name: null, note: nextVoter.note })
+      .eq("id", recommendationId);
+    if (updateError) return { error: "Couldn't delete — try again." };
+
+    // Best-effort cleanup -- if this fails, the promoted voter is briefly
+    // double-counted (once as author, once as a leftover vote row) until
+    // retried, not a broken or lost state.
+    await supabase.from("recommendation_votes").delete().eq("id", nextVoter.id);
+  }
 
   revalidatePath("/recommendations");
   return { success: true };

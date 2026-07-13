@@ -15,41 +15,46 @@ export default async function RecommendationsPage() {
     .select("*, profiles(display_name, photo_path)")
     .order("created_at", { ascending: false });
 
-  // Fetched as one flat table rather than an embedded PostgREST count --
-  // simpler to reason about, and at neighborhood scale there's no real cost
-  // to tallying it in JS instead of asking the DB to aggregate it.
+  // Fetched as one flat table (joined to the voter's own profile for their
+  // avatar/name) rather than an embedded PostgREST count -- simpler to
+  // reason about, and at neighborhood scale there's no real cost to
+  // grouping it in JS instead of asking the DB to aggregate it. Ordered
+  // oldest-first so both the "recommended by" display order and
+  // deleteRecommendation's promotion pick (see actions.js) agree on who
+  // recommended something first.
   const { data: votes } = await supabase
     .from("recommendation_votes")
-    .select("recommendation_id, voter_id");
+    .select("id, recommendation_id, voter_id, note, profiles(display_name, photo_path)")
+    .order("created_at", { ascending: true });
 
-  const voteCounts = {};
+  const votesByRec = {};
   const myVotedRecIds = [];
   for (const vote of votes ?? []) {
-    voteCounts[vote.recommendation_id] = (voteCounts[vote.recommendation_id] ?? 0) + 1;
+    (votesByRec[vote.recommendation_id] ??= []).push({
+      voterId: vote.voter_id,
+      name: vote.profiles?.display_name ?? "a neighbor",
+      photoPath: vote.profiles?.photo_path ?? null,
+      note: vote.note,
+    });
     if (vote.voter_id === userId) myVotedRecIds.push(vote.recommendation_id);
   }
 
-  const posterPhotoPaths = [
-    ...new Set(
-      (recommendations ?? [])
-        .map((rec) => rec.profiles?.photo_path)
-        .filter(Boolean)
-    ),
+  const photoPaths = [
+    ...new Set([
+      ...(recommendations ?? []).map((rec) => rec.profiles?.photo_path),
+      ...(votes ?? []).map((vote) => vote.profiles?.photo_path),
+    ].filter(Boolean)),
   ];
-  const posterPhotoUrls = await getSignedPhotoUrls(
-    supabase,
-    posterPhotoPaths,
-    "profile-photos"
-  );
+  const photoUrls = await getSignedPhotoUrls(supabase, photoPaths, "profile-photos");
 
   return (
     <main className="flex-1 px-5 py-6 pb-[calc(4rem+env(safe-area-inset-bottom)+1.5rem)] sm:pb-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
         <RecommendationsList
           recommendations={recommendations ?? []}
-          posterPhotoUrls={Object.fromEntries(posterPhotoUrls)}
+          photoUrls={Object.fromEntries(photoUrls)}
           userId={userId}
-          voteCounts={voteCounts}
+          votesByRec={votesByRec}
           myVotedRecIds={myVotedRecIds}
         />
       </div>
