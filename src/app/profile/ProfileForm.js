@@ -95,6 +95,12 @@ export default function ProfileForm({
         </p>
       </div>
 
+      {/* The leading @/$ is stripped before storage (see updateProfile in
+          actions.js) -- link-building already adds the platform-correct
+          symbol back where the URL needs it (paymentLinks.js), so storing it
+          symbol-free avoids ever doubling up. Re-prepending it here just for
+          display keeps that invisible to the user: what they see always
+          matches what they'd naturally type. */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="venmoHandle" className="text-xs text-muted-foreground">
           Venmo
@@ -102,8 +108,8 @@ export default function ProfileForm({
         <Input
           id="venmoHandle"
           name="venmoHandle"
-          defaultValue={initialVenmoHandle ?? ""}
-          placeholder="your-venmo-handle"
+          defaultValue={initialVenmoHandle ? `@${initialVenmoHandle}` : ""}
+          placeholder="@your-venmo-handle"
         />
       </div>
 
@@ -114,8 +120,8 @@ export default function ProfileForm({
         <Input
           id="cashappHandle"
           name="cashappHandle"
-          defaultValue={initialCashappHandle ?? ""}
-          placeholder="yourcashtag"
+          defaultValue={initialCashappHandle ? `$${initialCashappHandle}` : ""}
+          placeholder="$yourcashtag"
         />
       </div>
 
@@ -126,8 +132,8 @@ export default function ProfileForm({
         <Input
           id="paypalHandle"
           name="paypalHandle"
-          defaultValue={initialPaypalHandle ?? ""}
-          placeholder="your-paypal-me-handle"
+          defaultValue={initialPaypalHandle ? `@${initialPaypalHandle}` : ""}
+          placeholder="@your-paypal-handle"
         />
       </div>
 
