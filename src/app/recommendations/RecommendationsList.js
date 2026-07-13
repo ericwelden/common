@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon } from "lucide-react";
+import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon, ThumbsUpIcon } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import VoteButton from "./VoteButton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,8 @@ export default function RecommendationsList({
   recommendations,
   posterPhotoUrls,
   userId,
+  voteCounts,
+  myVotedRecIds,
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -236,6 +239,25 @@ export default function RecommendationsList({
                       {rec.author_id === userId
                         ? "posted by you"
                         : `posted by ${rec.profiles?.display_name ?? rec.author_name ?? "a neighbor"}`}
+                    </span>
+                    {/* The count always includes the original poster (1 +
+                        however many neighbors +1'd), so it reads as "N
+                        neighbors recommend this," not just "N extra votes."
+                        No button on your own post -- you can't +1 yourself
+                        (also enforced server-side, see actions.js). */}
+                    <span className="ml-auto">
+                      {rec.author_id === userId ? (
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                          <ThumbsUpIcon aria-hidden="true" className="size-3.5" />
+                          {1 + (voteCounts[rec.id] ?? 0)}
+                        </span>
+                      ) : (
+                        <VoteButton
+                          recommendationId={rec.id}
+                          count={1 + (voteCounts[rec.id] ?? 0)}
+                          hasVoted={myVotedRecIds.includes(rec.id)}
+                        />
+                      )}
                     </span>
                   </div>
                 </CardContent>
