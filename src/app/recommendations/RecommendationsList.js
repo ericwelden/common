@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { PlusIcon } from "lucide-react";
+import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,8 @@ export default function RecommendationsList({
       if (category !== "all" && rec.category !== category) return false;
       if (!q) return true;
       return (
-        rec.name.toLowerCase().includes(q) ||
+        rec.business_name?.toLowerCase().includes(q) ||
+        rec.contact_name?.toLowerCase().includes(q) ||
         rec.note.toLowerCase().includes(q)
       );
     });
@@ -172,10 +173,21 @@ export default function RecommendationsList({
                 <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
                   {/* A real heading, not shadcn's CardTitle -- CardTitle
                       renders a plain <div>, which would drop every
-                      recommendation's name from heading navigation. */}
-                  <h2 className="font-heading text-base leading-snug font-semibold">
-                    {rec.name}
-                  </h2>
+                      recommendation's name from heading navigation.
+                      business_name and contact_name are both optional (the
+                      DB only requires at least one) -- whichever exists
+                      leads the heading, and if both are set the other shows
+                      as a small line underneath rather than getting lost. */}
+                  <div className="flex flex-col gap-0.5">
+                    <h2 className="font-heading text-base leading-snug font-semibold">
+                      {rec.business_name ?? rec.contact_name}
+                    </h2>
+                    {rec.business_name && rec.contact_name && (
+                      <p className="text-xs text-muted-foreground">
+                        {rec.contact_name}
+                      </p>
+                    )}
+                  </div>
                   <Badge variant="secondary" className="shrink-0">
                     {rec.category}
                   </Badge>
@@ -184,6 +196,39 @@ export default function RecommendationsList({
                   <p className="text-sm leading-6 text-muted-foreground">
                     {rec.note}
                   </p>
+                  {(rec.phone || rec.email || rec.website) && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      {rec.phone && (
+                        <a
+                          href={`tel:${rec.phone}`}
+                          className="flex items-center gap-1 text-xs font-medium text-primary"
+                        >
+                          <PhoneIcon aria-hidden="true" className="size-3.5" />
+                          {rec.phone}
+                        </a>
+                      )}
+                      {rec.email && (
+                        <a
+                          href={`mailto:${rec.email}`}
+                          className="flex items-center gap-1 text-xs font-medium text-primary"
+                        >
+                          <MailIcon aria-hidden="true" className="size-3.5" />
+                          {rec.email}
+                        </a>
+                      )}
+                      {rec.website && (
+                        <a
+                          href={/^https?:\/\//i.test(rec.website) ? rec.website : `https://${rec.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs font-medium text-primary"
+                        >
+                          <GlobeIcon aria-hidden="true" className="size-3.5" />
+                          Website
+                        </a>
+                      )}
+                    </div>
+                  )}
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span>—</span>
                     <Avatar photoUrl={posterPhotoUrls[rec.profiles?.photo_path]} />
