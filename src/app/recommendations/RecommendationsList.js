@@ -6,6 +6,7 @@ import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon } from "lucide-react";
 import VoteButton from "./VoteButton";
 import DeleteRecommendationButton from "./DeleteRecommendationButton";
 import Recommenders from "./Recommenders";
+import { RECOMMENDATION_CATEGORIES } from "@/lib/recommendationCategories";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +20,12 @@ import {
 } from "@/components/ui/select";
 
 // Filters client-side rather than round-tripping to the server per
-// keystroke -- reasonable at neighborhood scale. Categories are free text
-// (no fixed taxonomy), so the filter dropdown is built from whatever
-// categories neighbors have actually used so far, not a hardcoded list.
+// keystroke -- reasonable at neighborhood scale. The category filter uses
+// the fixed taxonomy (src/lib/recommendationCategories.js), not whatever's
+// currently in use -- picking "Legal" should work even before anyone's
+// posted one. Selecting "Other" matches every other_category, but the free
+// text search box can still find a specific one ("knife" finds the knife
+// sharpener even though its category is just "Other").
 export default function RecommendationsList({
   recommendations,
   photoUrls,
@@ -32,11 +36,6 @@ export default function RecommendationsList({
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
 
-  const categories = useMemo(
-    () => [...new Set(recommendations.map((rec) => rec.category))].sort(),
-    [recommendations]
-  );
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return recommendations.filter((rec) => {
@@ -45,6 +44,7 @@ export default function RecommendationsList({
       return (
         rec.business_name?.toLowerCase().includes(q) ||
         rec.contact_name?.toLowerCase().includes(q) ||
+        rec.other_category?.toLowerCase().includes(q) ||
         rec.note?.toLowerCase().includes(q)
       );
     });
@@ -88,7 +88,7 @@ export default function RecommendationsList({
               onValueChange={setCategory}
               items={[
                 { value: "all", label: "All categories" },
-                ...categories.map((cat) => ({ value: cat, label: cat })),
+                ...RECOMMENDATION_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
               ]}
             >
               <SelectTrigger size="sm" className="w-32 shrink-0">
@@ -96,7 +96,7 @@ export default function RecommendationsList({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All categories</SelectItem>
-                {categories.map((cat) => (
+                {RECOMMENDATION_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
                   </SelectItem>
@@ -133,7 +133,7 @@ export default function RecommendationsList({
                 onValueChange={setCategory}
                 items={[
                   { value: "all", label: "All categories" },
-                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                  ...RECOMMENDATION_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
                 ]}
               >
                 <SelectTrigger className="w-full shrink-0 sm:w-44">
@@ -141,7 +141,7 @@ export default function RecommendationsList({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All categories</SelectItem>
-                  {categories.map((cat) => (
+                  {RECOMMENDATION_CATEGORIES.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
                     </SelectItem>
@@ -208,7 +208,7 @@ export default function RecommendationsList({
                     )}
                   </div>
                   <Badge variant="secondary" className="shrink-0">
-                    {rec.category}
+                    {rec.category === "Other" ? `Other: ${rec.other_category}` : rec.category}
                   </Badge>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">
