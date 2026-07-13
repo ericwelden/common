@@ -167,6 +167,7 @@ export default function RecommendationsList({
               name: rec.profiles?.display_name ?? rec.author_name ?? "a neighbor",
               photoUrl: photoUrls[rec.profiles?.photo_path],
               isYou: rec.author_id === userId,
+              isLinkedAccount: rec.author_id !== null,
             };
             const others = (votesByRec[rec.id] ?? []).map((v) => ({
               voterId: v.voterId,
@@ -174,6 +175,7 @@ export default function RecommendationsList({
               photoUrl: photoUrls[v.photoPath],
               note: v.note,
               isYou: v.voterId === userId,
+              isLinkedAccount: v.isLinkedAccount,
             }));
             const voteCount = 1 + others.length;
 

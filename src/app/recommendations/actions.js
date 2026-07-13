@@ -36,7 +36,14 @@ export async function toggleRecommendationVote(recommendationId, prevState, form
         note: note || null,
       });
 
-  if (error) return { error: "Couldn't update — try again." };
+  if (error) {
+    // Logged, not surfaced -- the generic message stays user-facing, but a
+    // real Postgres error (RLS denial, missing column, etc.) is otherwise
+    // invisible once it's collapsed to "Couldn't update", making a repeat
+    // failure impossible to diagnose from the UI alone.
+    console.error("toggleRecommendationVote failed", error);
+    return { error: "Couldn't update — try again." };
+  }
 
   revalidatePath("/recommendations");
   return { success: true };
@@ -75,13 +82,19 @@ export async function deleteRecommendation(recommendationId, prevState, formData
       .from("recommendations")
       .delete()
       .eq("id", recommendationId);
-    if (error) return { error: "Couldn't delete — try again." };
+    if (error) {
+      console.error("deleteRecommendation failed (no remaining voters)", error);
+      return { error: "Couldn't delete — try again." };
+    }
   } else {
     const { error: updateError } = await supabase
       .from("recommendations")
       .update({ author_id: nextVoter.voter_id, author_name: null, note: nextVoter.note })
       .eq("id", recommendationId);
-    if (updateError) return { error: "Couldn't delete — try again." };
+    if (updateError) {
+      console.error("deleteRecommendation failed (promotion update)", updateError);
+      return { error: "Couldn't delete — try again." };
+    }
 
     // Best-effort cleanup -- if this fails, the promoted voter is briefly
     // double-counted (once as author, once as a leftover vote row) until

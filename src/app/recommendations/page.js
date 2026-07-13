@@ -24,16 +24,21 @@ export default async function RecommendationsPage() {
   // recommended something first.
   const { data: votes } = await supabase
     .from("recommendation_votes")
-    .select("id, recommendation_id, voter_id, note, profiles(display_name, photo_path)")
+    .select("id, recommendation_id, voter_id, voter_name, note, profiles(display_name, photo_path)")
     .order("created_at", { ascending: true });
 
   const votesByRec = {};
   const myVotedRecIds = [];
   for (const vote of votes ?? []) {
+    // A vote is normally a real account, but a backfilled co-recommendation
+    // (imported from the listserv, same as name-only recommendations
+    // themselves) has no linked profile -- isLinkedAccount tells the UI not
+    // to render an avatar for those (see Recommenders.js).
     (votesByRec[vote.recommendation_id] ??= []).push({
       voterId: vote.voter_id,
-      name: vote.profiles?.display_name ?? "a neighbor",
+      name: vote.profiles?.display_name ?? vote.voter_name ?? "a neighbor",
       photoPath: vote.profiles?.photo_path ?? null,
+      isLinkedAccount: vote.voter_id !== null,
       note: vote.note,
     });
     if (vote.voter_id === userId) myVotedRecIds.push(vote.recommendation_id);
