@@ -190,7 +190,7 @@ export default function RecommendationsList({
                     <span>
                       {rec.author_id === userId
                         ? "posted by you"
-                        : `posted by ${rec.profiles?.display_name ?? "a neighbor"}`}
+                        : `posted by ${rec.profiles?.display_name ?? rec.author_name ?? "a neighbor"}`}
                     </span>
                   </div>
                 </CardContent>
