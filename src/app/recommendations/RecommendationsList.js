@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon } from "lucide-react";
-import VoteButton from "./VoteButton";
-import DeleteRecommendationButton from "./DeleteRecommendationButton";
 import Recommenders from "./Recommenders";
 import { RECOMMENDATION_CATEGORIES } from "@/lib/recommendationCategories";
 import { Input } from "@/components/ui/input";
@@ -31,7 +29,6 @@ export default function RecommendationsList({
   photoUrls,
   userId,
   votesByRec,
-  myVotedRecIds,
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -163,21 +160,33 @@ export default function RecommendationsList({
       ) : filtered.length > 0 ? (
         <ul className="flex flex-col gap-3">
           {filtered.map((rec) => {
-            const primary = {
-              name: rec.profiles?.display_name ?? rec.author_name ?? "a neighbor",
-              photoUrl: photoUrls[rec.profiles?.photo_path],
-              isYou: rec.author_id === userId,
-              isLinkedAccount: rec.author_id !== null,
-            };
-            const others = (votesByRec[rec.id] ?? []).map((v) => ({
-              voterId: v.voterId,
-              name: v.name,
-              photoUrl: photoUrls[v.photoPath],
-              note: v.note,
-              isYou: v.voterId === userId,
-              isLinkedAccount: v.isLinkedAccount,
-            }));
-            const voteCount = 1 + others.length;
+            // One list of uniform review entries -- the original post is
+            // just the oldest one, not visually special -- sorted newest
+            // first per the requested display order (deleteRecommendation's
+            // own "oldest remaining voter" promotion pick, in actions.js,
+            // is a separate concern and unaffected by this display sort).
+            const entries = [
+              {
+                kind: "primary",
+                id: rec.id,
+                name: rec.profiles?.display_name ?? rec.author_name ?? "a neighbor",
+                photoUrl: photoUrls[rec.profiles?.photo_path],
+                isYou: rec.author_id === userId,
+                isLinkedAccount: rec.author_id !== null,
+                note: rec.note,
+                createdAt: rec.created_at,
+              },
+              ...(votesByRec[rec.id] ?? []).map((v) => ({
+                kind: "vote",
+                id: v.id,
+                name: v.name,
+                photoUrl: photoUrls[v.photoPath],
+                isYou: v.voterId === userId,
+                isLinkedAccount: v.isLinkedAccount,
+                note: v.note,
+                createdAt: v.createdAt,
+              })),
+            ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             return (
             <li key={rec.id}>
@@ -213,16 +222,10 @@ export default function RecommendationsList({
                     {rec.category === "Other" ? `Other: ${rec.other_category}` : rec.category}
                   </Badge>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-2">
-                  {/* Only null after a promotion where the newly-promoted
-                      author hadn't left their own note (see
-                      deleteRecommendation in actions.js) -- never inheriting
-                      someone else's words rather than showing empty text. */}
-                  {rec.note && (
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      {rec.note}
-                    </p>
-                  )}
+                <CardContent className="flex flex-col gap-3">
+                  {/* Static info about the business itself, grouped under
+                      the header and above every review -- the rest of the
+                      card is just the reviews stack (see Recommenders.js). */}
                   {(rec.phone || rec.email || rec.website) && (
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       {rec.phone && (
@@ -256,24 +259,7 @@ export default function RecommendationsList({
                       )}
                     </div>
                   )}
-                  <Recommenders primary={primary} others={others} />
-                  {/* Delete only ever shows for the card's current author
-                      (also enforced server-side via RLS, see actions.js) --
-                      everyone else gets the +1 control instead, never both. */}
-                  <div className="flex items-center justify-between gap-3">
-                    {rec.author_id === userId ? (
-                      <DeleteRecommendationButton recommendationId={rec.id} />
-                    ) : (
-                      <span />
-                    )}
-                    {rec.author_id !== userId && (
-                      <VoteButton
-                        recommendationId={rec.id}
-                        count={voteCount}
-                        hasVoted={myVotedRecIds.includes(rec.id)}
-                      />
-                    )}
-                  </div>
+                  <Recommenders entries={entries} recommendationId={rec.id} />
                 </CardContent>
               </Card>
             </li>

@@ -12,37 +12,56 @@ import { createClient } from "@/lib/supabase/server";
 // also never renders a vote button on your own recommendation (see
 // RecommendationsList.js), so this is a defense-in-depth backstop, not the
 // only thing standing in the way.
-export async function toggleRecommendationVote(recommendationId, prevState, formData) {
+//
+// Add-only -- removing your own vote goes through deleteVote below instead
+// (each review entry, including your own vote, carries its own delete
+// control now -- see Recommenders.js), so there's no toggle-off branch here
+// anymore.
+export async function addVote(recommendationId, prevState, formData) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) redirect("/profile"); // defense in depth -- proxy already blocks this page
   const userId = data.claims.sub;
 
-  const { data: existing } = await supabase
-    .from("recommendation_votes")
-    .select("id")
-    .eq("recommendation_id", recommendationId)
-    .eq("voter_id", userId)
-    .maybeSingle();
-
-  // A second click always removes the vote outright -- no confirmation, no
-  // note to preserve. The note only matters on the way in.
   const note = formData.get("note")?.toString().trim();
-  const { error } = existing
-    ? await supabase.from("recommendation_votes").delete().eq("id", existing.id)
-    : await supabase.from("recommendation_votes").insert({
-        recommendation_id: recommendationId,
-        voter_id: userId,
-        note: note || null,
-      });
+  const { error } = await supabase.from("recommendation_votes").insert({
+    recommendation_id: recommendationId,
+    voter_id: userId,
+    note: note || null,
+  });
 
   if (error) {
     // Logged, not surfaced -- the generic message stays user-facing, but a
     // real Postgres error (RLS denial, missing column, etc.) is otherwise
     // invisible once it's collapsed to "Couldn't update", making a repeat
     // failure impossible to diagnose from the UI alone.
-    console.error("toggleRecommendationVote failed", error);
-    return { error: "Couldn't update — try again." };
+    console.error("addVote failed", error);
+    return { error: "Couldn't add — try again." };
+  }
+
+  revalidatePath("/recommendations");
+  return { success: true };
+}
+
+// voteId is bound before (prevState, formData) by the caller
+// (DeleteVoteButton.js). RLS's recommendation_votes_delete_own policy
+// restricts this to the vote's own voter -- defense in depth, same pattern
+// as everything else in this file. Unlike deleteRecommendation, there's no
+// promotion to do here: a vote is just one neighbor's own contribution, not
+// the thing the whole card hangs off of.
+export async function deleteVote(voteId, prevState, formData) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims) redirect("/profile"); // defense in depth -- proxy already blocks this page
+
+  const { error } = await supabase
+    .from("recommendation_votes")
+    .delete()
+    .eq("id", voteId);
+
+  if (error) {
+    console.error("deleteVote failed", error);
+    return { error: "Couldn't delete — try again." };
   }
 
   revalidatePath("/recommendations");

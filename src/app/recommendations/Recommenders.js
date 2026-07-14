@@ -1,93 +1,63 @@
 "use client";
 
 import { useState } from "react";
+import { format } from "date-fns";
 import Avatar from "@/components/Avatar";
-import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
+import VoteButton from "./VoteButton";
+import DeleteRecommendationButton from "./DeleteRecommendationButton";
+import DeleteVoteButton from "./DeleteVoteButton";
 
-const MAX_STACK = 3;
-
-// primary is always the oldest recommender (the card's current author) --
-// others is every +1, oldest first (see page.js's ordering), each carrying
-// their own optional note. 1 recommender keeps a plain byline; 2 show in
-// full, one after another; 3+ collapse the avatars into a stack (max 3,
-// "+N" for the rest) behind a "recommended by N neighbors" toggle that
-// expands to the same per-person list as the 2-person case -- the avatars
-// compress for space, but nobody's note gets hidden for good, just tucked
-// behind a click once there'd otherwise be too many to show at once.
-//
-// A backfilled (listserv) recommender has no Common account at all, just a
-// name -- isLinkedAccount is false for those, and they never get an avatar
-// circle, in the stack or anywhere else.
-export default function Recommenders({ primary, others }) {
+// entries is every review on this card -- the original post plus every
+// +1 -- already sorted newest-first by the caller (RecommendationsList.js).
+// Each renders identically (note, then "-- Name · Date", then a delete
+// control if it's the viewer's own), divided by a hairline. Only the
+// newest shows by default once there's more than one; "Show N more"
+// reveals the rest, "Show less" collapses back. A viewer who hasn't
+// contributed their own review yet gets a prompt to add one at the bottom.
+export default function Recommenders({ entries, recommendationId }) {
   const [expanded, setExpanded] = useState(false);
-  const people = [primary, ...others];
-  const total = people.length;
-
-  if (total === 1) {
-    return (
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <span>—</span>
-        {primary.isLinkedAccount && <Avatar photoUrl={primary.photoUrl} />}
-        <span>{primary.isYou ? "You" : primary.name}</span>
-      </div>
-    );
-  }
-
-  if (total === 2) {
-    return <PersonList people={people} />;
-  }
-
-  const stacked = people.slice(0, MAX_STACK).filter((p) => p.isLinkedAccount);
-  const overflow = total - MAX_STACK;
+  const hasContributed = entries.some((e) => e.isYou);
+  const visible = expanded ? entries : entries.slice(0, 1);
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <button
-        type="button"
-        onClick={() => setExpanded((e) => !e)}
-        aria-expanded={expanded}
-        className="flex items-center gap-2"
-      >
-        {stacked.length > 0 && (
-          <AvatarGroup className="*:data-[slot=avatar]:ring-card">
-            {stacked.map((p) => (
-              <Avatar key={p.voterId ?? "primary"} photoUrl={p.photoUrl} />
-            ))}
-            {overflow > 0 && <AvatarGroupCount>+{overflow}</AvatarGroupCount>}
-          </AvatarGroup>
-        )}
-        <span className="text-xs text-muted-foreground underline decoration-dotted underline-offset-2">
-          recommended by {total} neighbors
-        </span>
-      </button>
-      {expanded && <PersonList people={people} indent />}
-    </div>
-  );
-}
-
-function PersonList({ people, indent = false }) {
-  return (
-    <div className={indent ? "flex flex-col gap-2 pl-1" : "flex flex-col gap-2"}>
-      {people.map((p, i) => (
-        // i === 0 is always the (single) primary; other entries fall back to
-        // their index rather than "primary" too, since an unlinked voter's
-        // voterId is also null -- without this, every unlinked voter's key
-        // would collide with the primary's and with each other's.
-        <div key={i === 0 ? "primary" : (p.voterId ?? `unlinked-${i}`)} className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>—</span>
-            {p.isLinkedAccount && <Avatar photoUrl={p.photoUrl} />}
-            <span>{p.isYou ? "You" : p.name}</span>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        {visible.map((entry, i) => (
+          <div key={`${entry.kind}-${entry.id}`} className="flex flex-col gap-1.5">
+            {i > 0 && <div className="border-t border-border" />}
+            {entry.note && (
+              <p className="text-sm leading-6 text-muted-foreground">{entry.note}</p>
+            )}
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <span>—</span>
+                {entry.isLinkedAccount && <Avatar photoUrl={entry.photoUrl} />}
+                <span>{entry.isYou ? "You" : entry.name}</span>
+                <span>·</span>
+                <span>{format(new Date(entry.createdAt), "MMM d, yyyy")}</span>
+              </div>
+              {entry.isYou &&
+                (entry.kind === "primary" ? (
+                  <DeleteRecommendationButton recommendationId={entry.id} />
+                ) : (
+                  <DeleteVoteButton voteId={entry.id} />
+                ))}
+            </div>
           </div>
-          {/* The primary's own words are already the card's main note above
-              -- repeating them here would just be the same text twice. */}
-          {i > 0 && p.note && (
-            <p className="pl-[26px] text-xs leading-5 text-muted-foreground italic">
-              “{p.note}”
-            </p>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {entries.length > 1 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="self-start text-xs font-medium text-primary"
+        >
+          {expanded ? "Show less" : `Show ${entries.length - 1} more`}
+        </button>
+      )}
+
+      {!hasContributed && <VoteButton recommendationId={recommendationId} />}
     </div>
   );
 }
