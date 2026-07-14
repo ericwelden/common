@@ -2,18 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { createRecommendation } from "./actions";
-import { RECOMMENDATION_CATEGORIES } from "@/lib/recommendationCategories";
+import CategoryCombobox from "@/components/CategoryCombobox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export default function NewRecommendationForm() {
   const [state, action, pending] = useActionState(
@@ -45,23 +38,13 @@ export default function NewRecommendationForm() {
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="category">Category</Label>
-        <Select
+        <CategoryCombobox
+          id="category"
           name="category"
           value={category}
           onValueChange={setCategory}
-          items={RECOMMENDATION_CATEGORIES.map((c) => ({ value: c, label: c }))}
-        >
-          <SelectTrigger id="category" className="w-full">
-            <SelectValue placeholder="Choose a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {RECOMMENDATION_CATEGORIES.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          className="w-full"
+        />
       </div>
 
       {/* Free text only when "Other" doesn't already have a home in the

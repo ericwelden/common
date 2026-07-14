@@ -24,7 +24,7 @@ export default function VoteButton({ recommendationId }) {
       <button
         type="button"
         onClick={() => setExpanded(true)}
-        className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
+        className="flex w-fit items-center gap-1.5 self-start rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
       >
         <ThumbsUpIcon aria-hidden="true" className="size-3.5" />
         Recommend this too

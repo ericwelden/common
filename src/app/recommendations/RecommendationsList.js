@@ -2,20 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { format } from "date-fns";
 import { GlobeIcon, MailIcon, PhoneIcon, PlusIcon } from "lucide-react";
 import Recommenders from "./Recommenders";
-import { RECOMMENDATION_CATEGORIES } from "@/lib/recommendationCategories";
+import CategoryCombobox from "@/components/CategoryCombobox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // Filters client-side rather than round-tripping to the server per
 // keystroke -- reasonable at neighborhood scale. The category filter uses
@@ -33,19 +27,58 @@ export default function RecommendationsList({
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
 
+  // Built once per recommendation (not per keystroke) and reused for both
+  // searching and rendering -- every review's own name/note/date is fair
+  // game for search, not just the primary's, since a business might only
+  // match on something a later +1 said.
+  const entriesByRecId = useMemo(() => {
+    const map = {};
+    for (const rec of recommendations) {
+      map[rec.id] = [
+        {
+          kind: "primary",
+          id: rec.id,
+          name: rec.profiles?.display_name ?? rec.author_name ?? "a neighbor",
+          photoUrl: photoUrls[rec.profiles?.photo_path],
+          isYou: rec.author_id === userId,
+          isLinkedAccount: rec.author_id !== null,
+          note: rec.note,
+          createdAt: rec.created_at,
+        },
+        ...(votesByRec[rec.id] ?? []).map((v) => ({
+          kind: "vote",
+          id: v.id,
+          name: v.name,
+          photoUrl: photoUrls[v.photoPath],
+          isYou: v.voterId === userId,
+          isLinkedAccount: v.isLinkedAccount,
+          note: v.note,
+          createdAt: v.createdAt,
+        })),
+      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    return map;
+  }, [recommendations, votesByRec, photoUrls, userId]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return recommendations.filter((rec) => {
       if (category !== "all" && rec.category !== category) return false;
       if (!q) return true;
+      const categoryText = rec.category === "Other" ? rec.other_category : rec.category;
       return (
         rec.business_name?.toLowerCase().includes(q) ||
         rec.contact_name?.toLowerCase().includes(q) ||
-        rec.other_category?.toLowerCase().includes(q) ||
-        rec.note?.toLowerCase().includes(q)
+        categoryText?.toLowerCase().includes(q) ||
+        entriesByRecId[rec.id]?.some(
+          (entry) =>
+            entry.note?.toLowerCase().includes(q) ||
+            entry.name?.toLowerCase().includes(q) ||
+            format(new Date(entry.createdAt), "MMM d, yyyy").toLowerCase().includes(q)
+        )
       );
     });
-  }, [recommendations, query, category]);
+  }, [recommendations, query, category, entriesByRecId]);
 
   return (
     <>
@@ -80,26 +113,12 @@ export default function RecommendationsList({
               placeholder="Search recommendations…"
               className="h-9 flex-1 rounded-full"
             />
-            <Select
+            <CategoryCombobox
               value={category}
               onValueChange={setCategory}
-              items={[
-                { value: "all", label: "All categories" },
-                ...RECOMMENDATION_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
-              ]}
-            >
-              <SelectTrigger size="sm" className="w-32 shrink-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All categories</SelectItem>
-                {RECOMMENDATION_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              includeAllOption
+              className="h-9 w-32 shrink-0"
+            />
           </div>
         )}
       </div>
@@ -125,26 +144,12 @@ export default function RecommendationsList({
                 placeholder="Search recommendations…"
                 className="rounded-full sm:w-56"
               />
-              <Select
+              <CategoryCombobox
                 value={category}
                 onValueChange={setCategory}
-                items={[
-                  { value: "all", label: "All categories" },
-                  ...RECOMMENDATION_CATEGORIES.map((cat) => ({ value: cat, label: cat })),
-                ]}
-              >
-                <SelectTrigger className="w-full shrink-0 sm:w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  {RECOMMENDATION_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                includeAllOption
+                className="w-full shrink-0 sm:w-44"
+              />
             </>
           )}
         </div>
@@ -160,33 +165,7 @@ export default function RecommendationsList({
       ) : filtered.length > 0 ? (
         <ul className="flex flex-col gap-3">
           {filtered.map((rec) => {
-            // One list of uniform review entries -- the original post is
-            // just the oldest one, not visually special -- sorted newest
-            // first per the requested display order (deleteRecommendation's
-            // own "oldest remaining voter" promotion pick, in actions.js,
-            // is a separate concern and unaffected by this display sort).
-            const entries = [
-              {
-                kind: "primary",
-                id: rec.id,
-                name: rec.profiles?.display_name ?? rec.author_name ?? "a neighbor",
-                photoUrl: photoUrls[rec.profiles?.photo_path],
-                isYou: rec.author_id === userId,
-                isLinkedAccount: rec.author_id !== null,
-                note: rec.note,
-                createdAt: rec.created_at,
-              },
-              ...(votesByRec[rec.id] ?? []).map((v) => ({
-                kind: "vote",
-                id: v.id,
-                name: v.name,
-                photoUrl: photoUrls[v.photoPath],
-                isYou: v.voterId === userId,
-                isLinkedAccount: v.isLinkedAccount,
-                note: v.note,
-                createdAt: v.createdAt,
-              })),
-            ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const entries = entriesByRecId[rec.id];
 
             return (
             <li key={rec.id}>
@@ -194,7 +173,7 @@ export default function RecommendationsList({
                   photo cards on /resources, these have no photo to carry
                   visual weight, so they keep the hairline ring plus a resting
                   shadow, matching Airbnb's own text-heavy card tokens. */}
-              <Card className="shadow-elevated">
+              <Card className="shadow-elevated gap-0">
                 {/* flex, not just flex-row -- CardHeader's base className is
                     `grid`, and flex-row alone (no `flex`) doesn't switch that
                     off, so the badge silently dropped to its own row below
