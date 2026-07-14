@@ -185,18 +185,12 @@ export default function RecommendationsList({
                       recommendation's name from heading navigation.
                       business_name and contact_name are both optional (the
                       DB only requires at least one) -- whichever exists
-                      leads the heading, and if both are set the other shows
-                      as a small line underneath rather than getting lost. */}
-                  <div className="flex flex-col gap-0.5">
-                    <h2 className="font-heading text-base leading-snug font-semibold">
-                      {rec.business_name ?? rec.contact_name}
-                    </h2>
-                    {rec.business_name && rec.contact_name && (
-                      <p className="text-xs text-muted-foreground">
-                        {rec.contact_name}
-                      </p>
-                    )}
-                  </div>
+                      leads the heading; if both are set, contact_name joins
+                      the contact-info row below instead of getting its own
+                      line here. */}
+                  <h2 className="font-heading text-base leading-snug font-semibold">
+                    {rec.business_name ?? rec.contact_name}
+                  </h2>
                   <Badge variant="secondary" className="shrink-0">
                     {rec.category === "Other" ? `Other: ${rec.other_category}` : rec.category}
                   </Badge>
@@ -204,9 +198,17 @@ export default function RecommendationsList({
                 <CardContent className="flex flex-col gap-3">
                   {/* Static info about the business itself, grouped under
                       the header and above every review -- the rest of the
-                      card is just the reviews stack (see Recommenders.js). */}
-                  {(rec.phone || rec.email || rec.website) && (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      card is just the reviews stack (see Recommenders.js).
+                      contact_name only shows here when business_name is
+                      also set (otherwise contact_name is already the
+                      heading above, and repeating it would be redundant). */}
+                  {(rec.business_name && rec.contact_name || rec.phone || rec.email || rec.website) && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1">
+                      {rec.business_name && rec.contact_name && (
+                        <span className="text-xs text-muted-foreground">
+                          {rec.contact_name}
+                        </span>
+                      )}
                       {rec.phone && (
                         <a
                           href={`tel:${rec.phone}`}
