@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { RECOMMENDATION_CATEGORIES } from "@/lib/recommendationCategories";
 import {
   Combobox,
@@ -41,7 +42,16 @@ export default function CategoryCombobox({
       name={name}
       itemToStringLabel={toLabel}
     >
-      <ComboboxInput id={id} placeholder={placeholder} className={className} />
+      {/* ComboboxInput's own default (h-8, no explicit light-mode bg) doesn't
+          match Input/Button's shared h-12 + bg-card convention (see
+          button.jsx's size comment) -- these are the sane defaults, still
+          overridable per call site via className (e.g. the mobile filter's
+          h-9, matching its neighboring search input at that breakpoint). */}
+      <ComboboxInput
+        id={id}
+        placeholder={placeholder}
+        className={cn("h-12 bg-card", className)}
+      />
       <ComboboxContent className="w-max">
         <ComboboxEmpty>No matches</ComboboxEmpty>
         {/* A function child, not a manual .map() over the full items array --

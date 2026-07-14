@@ -117,7 +117,7 @@ export default function RecommendationsList({
               value={category}
               onValueChange={setCategory}
               includeAllOption
-              className="h-9 w-32 shrink-0"
+              className="h-9 w-32 shrink-0 rounded-full"
             />
           </div>
         )}
@@ -148,7 +148,7 @@ export default function RecommendationsList({
                 value={category}
                 onValueChange={setCategory}
                 includeAllOption
-                className="w-full shrink-0 sm:w-44"
+                className="w-full shrink-0 rounded-full sm:w-44"
               />
             </>
           )}
