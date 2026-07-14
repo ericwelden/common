@@ -6,6 +6,6 @@ const NeighborhoodMap = dynamic(() => import("./NeighborhoodMap"), {
   ssr: false,
 });
 
-export default function MapLoader() {
-  return <NeighborhoodMap />;
+export default function MapLoader({ pins, userId }) {
+  return <NeighborhoodMap pins={pins} userId={userId} />;
 }

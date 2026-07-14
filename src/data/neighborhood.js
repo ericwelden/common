@@ -16,14 +16,3 @@ export const MAP_VIEW = {
     [-122.191, 37.808],
   ],
 };
-
-// Sample points of interest. Replace with real neighborhood spots.
-export const PLACES = [
-  {
-    id: "center",
-    name: "Madeline Street neighborhood",
-    description: "Home base for the Common neighborhood map.",
-    lat: NEIGHBORHOOD_CENTER.lat,
-    lng: NEIGHBORHOOD_CENTER.lng,
-  },
-];
